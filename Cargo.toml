@@ -1,0 +1,23 @@
+[package]
+name = "advent-2020"
+version = "0.1.0"
+authors = ["Michael Diamond"]
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+lazy_static = "1.4"
+parameterized_test = "0.1"
+regex = "1"
+
+# https://doc.rust-lang.org/1.29.0/book/first-edition/conditional-compilation.html
+# https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
+[features]
+default = []
+# If enabled compiles additional output / debugging details
+# implicitly enabled in non-release mode.
+# See the interactive!() macro in console.rs.
+interactive = []
+# If enabled records and prints certain timing data
+# See the elapsed!() macro in console.rs.
+timing = []
