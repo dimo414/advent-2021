@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "advent-2020"
+name = "advent-2021"
 version = "0.1.0"
 dependencies = [
  "anyhow",
