@@ -113,7 +113,7 @@ mod point {
 
         fn from_str(s: &str) -> Result<Self> {
             // r"^([^,]+),([^,]+)$" would be more strict - worth it?
-            let regex = static_regex!(r"^\(?([^(,]+),([^),]+)\)?$");
+            let regex = parsing::static_regex!(r"^\(?([^(,]+),([^),]+)\)?$");
             let caps = parsing::regex_captures(&regex, s)?;
             let x: i32 = parsing::capture_group(&caps, 1).trim().parse()?;
             let y: i32 = parsing::capture_group(&caps, 2).trim().parse()?;

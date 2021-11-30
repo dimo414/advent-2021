@@ -29,7 +29,7 @@ use std::sync::Mutex;
 
 static RESET_LINES: AtomicUsize = AtomicUsize::new(0);
 
-lazy_static! {
+lazy_static::lazy_static! {
     static ref TRANSFORMS: Mutex<HashMap<char, String>> = Mutex::new(HashMap::new());
 }
 
