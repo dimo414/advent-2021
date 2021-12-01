@@ -7,8 +7,11 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 lazy_static = "1.4"
-parameterized_test = "0.1"
 regex = "1"
+
+[dev-dependencies]
+parameterized_test = "0.1"
+assert_approx_eq = "1.1.0"
 
 # https://doc.rust-lang.org/1.29.0/book/first-edition/conditional-compilation.html
 # https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section

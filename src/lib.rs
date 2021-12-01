@@ -1,5 +1,4 @@
 extern crate lazy_static;
-extern crate parameterized_test;
 extern crate regex;
 extern crate anyhow;
 

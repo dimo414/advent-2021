@@ -7,6 +7,7 @@ name = "advent-2021"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "assert_approx_eq",
  "lazy_static",
  "parameterized_test",
  "regex",
@@ -26,6 +27,12 @@ name = "anyhow"
 version = "1.0.47"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38d9ff5d688f1c13395289f67db01d4826b46dd694e7580accdc3e8430f2d98e"
+
+[[package]]
+name = "assert_approx_eq"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c07dab4369547dbe5114677b33fbbf724971019f3818172d59a97a61c774ffd"
 
 [[package]]
 name = "lazy_static"

@@ -114,10 +114,10 @@ mod point {
         fn from_str(s: &str) -> Result<Self> {
             // r"^([^,]+),([^,]+)$" would be more strict - worth it?
             let regex = parsing::static_regex!(r"^\(?([^(,]+),([^),]+)\)?$");
-            let caps = parsing::regex_captures(&regex, s)?;
+            let caps = parsing::regex_captures(regex, s)?;
             let x: i32 = parsing::capture_group(&caps, 1).trim().parse()?;
             let y: i32 = parsing::capture_group(&caps, 2).trim().parse()?;
-            return Ok(point(x, y));
+            Ok(point(x, y))
         }
     }
 
@@ -268,6 +268,7 @@ mod vector {
     mod tests {
         use super::super::point;
         use super::*;
+        use assert_approx_eq::assert_approx_eq;
 
         #[test]
         fn parse() {
@@ -277,7 +278,7 @@ mod vector {
 
         #[test]
         fn len() {
-            assert_eq!(vector(3, -4).len(), 5_f64);
+            assert_approx_eq!(vector(3, -4).len(), 5_f64, f64::EPSILON);
         }
 
         parameterized_test::create!{ grid_lens, (p1, p2, d), {
