@@ -8,13 +8,13 @@ use advent_2021::*;
 
 fn main() -> Result<()> {
     let _console = console::Console::init();
-    let input = parse_data();
+    let input = parse_input();
     println!("HELLO {}!", some_regex(input)?);
 
     Ok(())
 }
 
-fn parse_data() -> &'static str {
+fn parse_input() -> &'static str {
     include_str!("../../input/template.txt").trim()
 }
 
