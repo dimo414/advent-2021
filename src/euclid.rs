@@ -189,7 +189,7 @@ pub use self::point::{Point,point};
 mod vector {
     use std::fmt;
     use std::str::FromStr;
-    use std::ops::{Add,Mul};
+    use std::ops::{Add,AddAssign,Mul};
     use anyhow::{Error, Result};
 
     #[derive(Copy, Clone, PartialEq, Eq, Hash)]
@@ -231,6 +231,26 @@ mod vector {
 
         fn add(self, vec: Vector) -> Vector {
             vector(self.x + vec.x, self.y + vec.y)
+        }
+    }
+
+    impl Add<&Vector> for Vector {
+        type Output = Vector;
+
+        fn add(self, vec: &Vector) -> Vector {
+            vector(self.x + vec.x, self.y + vec.y)
+        }
+    }
+
+    impl AddAssign<Vector> for Vector {
+        fn add_assign(&mut self, vec: Vector) {
+            *self = vector(self.x + vec.x, self.y + vec.y);
+        }
+    }
+
+    impl AddAssign<&Vector> for Vector {
+        fn add_assign(&mut self, vec: &Vector) {
+            *self = vector(self.x + vec.x, self.y + vec.y);
         }
     }
 
