@@ -6,7 +6,7 @@ fn main() {
 }
 
 fn parse_input() -> Vec<i32> {
-    include_str!("../../input/01.txt").lines().map(|l| l.parse().unwrap()).collect()
+    include_str!("input.txt").lines().map(|l| l.parse().unwrap()).collect()
 }
 
 fn count_increases(report: &[i32]) -> usize {

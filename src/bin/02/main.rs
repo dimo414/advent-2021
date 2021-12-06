@@ -4,7 +4,7 @@ use advent_2021::euclid::{vector, Vector};
 use advent_2021::parsing::{capture_group, regex_captures, static_regex};
 
 fn main() -> Result<()> {
-    let input = parse_input()?;
+    let input = parse_input(include_str!("input.txt"))?;
 
     let distance = sum_directions(&input);
     println!("Naive Dist: {} = {}", distance, distance.x*distance.y);
@@ -42,8 +42,8 @@ fn to_vector(inst: &str) -> Result<Vector> {
     Ok(dir * dist)
 }
 
-fn parse_input() -> Result<Vec<Vector>> {
-    include_str!("../../input/02.txt").lines().map(|l| to_vector(l)).collect()
+fn parse_input(input: &str) -> Result<Vec<Vector>> {
+    input.lines().map(|l| to_vector(l)).collect()
 }
 
 #[cfg(test)]
@@ -51,8 +51,7 @@ mod tests {
     use super::*;
 
     fn example() -> Vec<Vector> {
-        "forward 5\ndown 5\nforward 8\nup 3\ndown 8\nforward 2\n".lines()
-            .map(|l| to_vector(l).unwrap()).collect()
+        parse_input(include_str!("example.txt")).unwrap()
     }
 
     #[test]
