@@ -6,17 +6,11 @@ if (( date < 1 || date > 25 )); then
   exit 1
 fi
 printf -v date '%02d' "$date" # add leading 0
-file="src/bin/${date}.rs"
-input="input/${date}.txt"
+dir="src/bin/${date}"
 
-if [[ -e "$file" ]]; then
-  echo "${file} already exists! Not overwriting" >&2
-  exit 1
-fi
+mkdir "$dir" || exit 1
+cp src/bin/template/* "$dir"
 
-sed "s/template/${date}/g" src/bin/template.rs > "$file"
-touch "$input"
-
-echo "Created ${date}.rs and ${input}:"
+echo "Created ${dir}:"
 printf 'Run:\tcargo run --bin %s\n' "$date"
 printf 'Test:\tcargo test --bin %s\n' "$date"

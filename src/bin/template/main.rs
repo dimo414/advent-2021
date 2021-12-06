@@ -4,24 +4,23 @@
 
 use anyhow::Result;
 
-use advent_2021::*;
+use advent_2021::parsing::*;
 
 fn main() -> Result<()> {
-    let _console = console::Console::init();
-    let input = parse_input();
+    let input = parse_input(include_str!("input.txt"));
     println!("HELLO {}!", some_regex(input)?);
 
     Ok(())
 }
 
-fn parse_input() -> &'static str {
-    include_str!("../../input/template.txt").trim()
+fn parse_input(input: &str) -> &str {
+    input.trim()
 }
 
 fn some_regex(s: &str) -> Result<String> {
-    let regex = parsing::static_regex!(r"Hello (.*)!");
-    let caps = parsing::regex_captures(regex, s)?;
-    Ok(parsing::capture_group(&caps, 1).to_string())
+    let regex = static_regex!(r"Hello (.*)!");
+    let caps = regex_captures(regex, s)?;
+    Ok(capture_group(&caps, 1).to_string())
 }
 
 #[cfg(test)]
@@ -29,7 +28,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn delete_me() { assert!(true); }
+    fn delete_me() { parse_input(include_str!("example.txt")); }
 
     parameterized_test::create!{ delete, n, { assert_eq!(n % 2, 0); } }
     delete! {
