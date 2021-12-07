@@ -35,7 +35,7 @@ fn points_between(a: Point, b: Point) -> Vec<Point> {
 }
 
 fn parse_input(input: &str) -> Result<Vec<(Point, Point)>> {
-    fn to_pair<'a>(line: &str) -> Result<(Point, Point)> {
+    fn to_pair(line: &str) -> Result<(Point, Point)> {
         let regex = static_regex!(r"(.*) -> (.*)");
         let caps = regex_captures(regex, line)?;
         let a = capture_group(&caps, 1);

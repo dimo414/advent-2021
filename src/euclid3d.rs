@@ -109,7 +109,7 @@ mod point {
             let x: i32 = capture_group(&caps, 1).trim().parse()?;
             let y: i32 = capture_group(&caps, 2).trim().parse()?;
             let z: i32 = capture_group(&caps, 3).trim().parse()?;
-            return Ok(point(x, y, z));
+            Ok(point(x, y, z))
         }
     }
 

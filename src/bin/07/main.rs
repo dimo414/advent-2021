@@ -34,20 +34,20 @@ fn complex_fuel_cost(positions: &[i32], target: i32) -> i32 {
 }
 
 fn parse_input(input: &str) -> Result<Vec<i32>> {
-    input.split(",").map(|n| n.parse().context(n.to_string())).collect()
+    input.split(',').map(|n| n.parse().context(n.to_string())).collect()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    static CRABS: &'static [i32] = &[16,1,2,0,4,2,7,1,2,14];
+    static CRABS: &[i32] = &[16,1,2,0,4,2,7,1,2,14];
 
     #[test]
     fn check_median() {
         let seq = vec![1,3,6,9,10];
         assert_eq!(median(&seq), 6);
-        assert_eq!(median(&CRABS), 2);
+        assert_eq!(median(CRABS), 2);
     }
 
     #[test]

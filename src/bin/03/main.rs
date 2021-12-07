@@ -54,7 +54,7 @@ fn filter_by_column<F: Fn(usize, usize) -> bool>(report: &[&str], f: F) -> Strin
         let mut zeros = vec!();
         let mut ones = vec!();
         for c in candidates {
-            match c.chars().skip(index).next().unwrap() {
+            match c.chars().nth(index).unwrap() {
                 '0' => zeros.push(c),
                 '1' => ones.push(c),
                 _ => panic!(),
@@ -71,11 +71,11 @@ fn filter_by_column<F: Fn(usize, usize) -> bool>(report: &[&str], f: F) -> Strin
 }
 
 fn o2_gen(report: &[&str]) -> String {
-    filter_by_column(&report, |z, o| z <= o)
+    filter_by_column(report, |z, o| z <= o)
 }
 
 fn co2_scrub(report: &[&str]) -> String {
-    filter_by_column(&report, |z, o| z > o)
+    filter_by_column(report, |z, o| z > o)
 }
 
 #[cfg(test)]

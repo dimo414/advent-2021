@@ -21,7 +21,7 @@ fn sum_windows(report: &[i32], window: usize) -> Vec<i32> {
 mod tests {
     use super::*;
 
-    static REPORT: &'static [i32] = &[199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+    static REPORT: &[i32] = &[199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
 
     #[test]
     fn increases() {

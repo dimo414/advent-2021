@@ -8,7 +8,7 @@ fn main() -> Result<()> {
 }
 
 fn parse_input(input: &str) -> Result<Vec<u64>> {
-    input.trim().split(",").map(|n| n.parse().context(n.to_string())).collect()
+    input.trim().split(',').map(|n| n.parse().context(n.to_string())).collect()
 }
 
 fn simulate(fish: &[u64], days: usize) -> usize {

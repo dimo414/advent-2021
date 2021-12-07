@@ -56,7 +56,7 @@ impl Board {
     }
 }
 
-fn play(moves: &Vec<u32>, boards: &mut Vec<Board>) -> (u32, u32) {
+fn play(moves: &[u32], boards: &mut Vec<Board>) -> (u32, u32) {
     let mut completed = vec!();
     for square in moves {
         for (i, board) in boards.iter_mut().enumerate() {
@@ -72,7 +72,7 @@ fn play(moves: &Vec<u32>, boards: &mut Vec<Board>) -> (u32, u32) {
 
 fn parse_input(input: &str) -> (Vec<u32>, Vec<Board>) {
     let mut lines = input.lines();
-    let moves = lines.next().unwrap().split(",").map(|n| n.parse().unwrap()).collect();
+    let moves = lines.next().unwrap().split(',').map(|n| n.parse().unwrap()).collect();
     lines.next().unwrap();
 
     let lines: Vec<_> = lines.collect();
