@@ -1,5 +1,4 @@
-use std::num::ParseIntError;
-use anyhow::{anyhow, Result};
+use anyhow::{Context, Result};
 
 fn main() -> Result<()> {
     let input = parse_input(include_str!("input.txt"))?;
@@ -9,7 +8,7 @@ fn main() -> Result<()> {
 }
 
 fn parse_input(input: &str) -> Result<Vec<u64>> {
-    input.trim().split(",").map(|n| n.parse().map_err(|e: ParseIntError| anyhow!(e))).collect()
+    input.trim().split(",").map(|n| n.parse().context(n.to_string())).collect()
 }
 
 fn simulate(fish: &[u64], days: usize) -> usize {
