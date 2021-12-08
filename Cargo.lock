@@ -8,6 +8,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "assert_approx_eq",
+ "bitmaps",
  "lazy_static",
  "parameterized_test",
  "regex",
@@ -33,6 +34,12 @@ name = "assert_approx_eq"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c07dab4369547dbe5114677b33fbbf724971019f3818172d59a97a61c774ffd"
+
+[[package]]
+name = "bitmaps"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "303cec55cd9c5fde944b061b902f142b52a8bb5438cc822481ea1e3ebc96bbcb"
 
 [[package]]
 name = "lazy_static"
