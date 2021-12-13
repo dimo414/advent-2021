@@ -10,7 +10,8 @@ fn main() -> Result<()> {
     let _console = Console::init();
     Console::colorize_char('0', Color::WHITE);
     for i in 1..=9 {
-        Console::colorize_char(char::from_digit(i, 10).unwrap(), Color::GREYSCALE(i as f32 / 10.0));
+        // divide by 12 instead of 10 to make the white "blink" more distinct
+        Console::colorize_char(char::from_digit(i, 10).unwrap(), Color::GREYSCALE(i as f32 / 12.0));
     }
 
     let mut octopi: Octopi = include_str!("input.txt").parse()?;

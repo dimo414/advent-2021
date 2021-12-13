@@ -53,7 +53,9 @@ impl Color {
             Color::WHITE => "97".into(),
             Color::GREYSCALE(f) => {
                 assert!((0.0..=1.0).contains(f), "Greyscale value must be between 0 and 1");
-                format!("38;5;{}", (f * 16.0).ceil() as u32 + 232)
+                format!("38;5;{}", (f * 24.0).round() as u32 + 232)
+                // could instead use 24bit colors:
+                //format!("38;2;{n};{n};{n}", n=(f * 255.0).round() as u32)
             }
         };
         format!("\u{001B}[{}m█\u{001B}[0m", code)
