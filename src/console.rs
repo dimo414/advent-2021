@@ -34,20 +34,27 @@ lazy_static::lazy_static! {
 }
 
 pub enum Color {
-    /*BLACK, */RED, GREEN, YELLOW, BLUE, /*MAGENTA, CYAN,*/ GREY,
+    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, GREY,
+    WHITE,
+    GREYSCALE(f32),
 }
 
 impl Color {
     fn ansi(&self) -> String {
         let code = match self {
-            // Color::BLACK=> 30,
-            Color::RED=> 31,
-            Color::GREEN=> 32,
-            Color::YELLOW=> 33,
-            Color::BLUE=> 34,
-            // Color::MAGENTA=> 35,
-            // Color::CYAN=> 36,
-            Color::GREY=> 37,
+            Color::BLACK => "30".into(),
+            Color::RED => "31".into(),
+            Color::GREEN => "32".into(),
+            Color::YELLOW => "33".into(),
+            Color::BLUE => "34".into(),
+            Color::MAGENTA => "35".into(),
+            Color::CYAN => "36".into(),
+            Color::GREY => "37".into(),
+            Color::WHITE => "97".into(),
+            Color::GREYSCALE(f) => {
+                assert!((0.0..=1.0).contains(f), "Greyscale value must be between 0 and 1");
+                format!("38;5;{}", (f * 16.0).ceil() as u32 + 232)
+            }
         };
         format!("\u{001B}[{}m█\u{001B}[0m", code)
     }
