@@ -63,8 +63,8 @@ impl Caves {
         for (source, dest) in edges {
             let source = refs.entry(source).or_insert_with(|| Rc::new(source.to_string())).clone();
             let dest = refs.entry(dest).or_insert_with(|| Rc::new(dest.to_string())).clone();
-            connections.entry(source.clone()).and_modify(|v: &mut Vec<_>| v.push(dest.clone())).or_insert(vec!(dest.clone()));
-            connections.entry(dest.clone()).and_modify(|v: &mut Vec<_>| v.push(source.clone())).or_insert(vec!(source.clone()));
+            connections.entry(source.clone()).and_modify(|v: &mut Vec<_>| v.push(dest.clone())).or_insert_with(||vec!(dest.clone()));
+            connections.entry(dest.clone()).and_modify(|v: &mut Vec<_>| v.push(source.clone())).or_insert_with(||vec!(source.clone()));
         }
         Caves { connections }
     }

@@ -89,8 +89,8 @@ fn emulate_step(polymer: &BTreeMap<(char, char), u64>, transforms: &BTreeMap<(ch
 }
 
 fn emulate(initial_polymer: &str, transforms: &BTreeMap<String, String>, iters: usize) -> BTreeMap<char, u64> {
-    let mut polymer = to_pairs(&initial_polymer);
-    let transforms = to_transform_map(&transforms);
+    let mut polymer = to_pairs(initial_polymer);
+    let transforms = to_transform_map(transforms);
     for _ in 0..iters {
         polymer = emulate_step(&polymer, &transforms);
     }

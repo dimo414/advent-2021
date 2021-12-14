@@ -43,7 +43,7 @@ fn to_vector(inst: &str) -> Result<Vector> {
 }
 
 fn parse_input(input: &str) -> Result<Vec<Vector>> {
-    input.lines().map(|l| to_vector(l)).collect()
+    input.lines().map(to_vector).collect()
 }
 
 #[cfg(test)]

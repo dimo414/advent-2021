@@ -55,7 +55,7 @@ fn score_incomplete(incomplete: &[Status]) -> u64 {
                 _ => panic!(),
             }))
         .collect();
-    scores.sort();
+    scores.sort_unstable();
     scores[scores.len()/2]
 }
 
