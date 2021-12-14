@@ -9,7 +9,7 @@ mod point {
     use std::ops::{Add,AddAssign,Sub};
     use std::str::FromStr;
     use anyhow::{Error, Result};
-    use crate::parsing;
+    use crate::parsing::{static_regex,capture_group,regex_captures};
 
     #[derive(Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
     pub struct Point {
@@ -148,10 +148,10 @@ mod point {
 
         fn from_str(s: &str) -> Result<Self> {
             // r"^([^,]+),([^,]+)$" would be more strict - worth it?
-            let regex = parsing::static_regex!(r"^\(?([^(,]+),([^),]+)\)?$");
-            let caps = parsing::regex_captures(regex, s)?;
-            let x: i32 = parsing::capture_group(&caps, 1).trim().parse()?;
-            let y: i32 = parsing::capture_group(&caps, 2).trim().parse()?;
+            let regex = static_regex!(r"^\(?([^(,]+),([^),]+)\)?$");
+            let caps = regex_captures(regex, s)?;
+            let x: i32 = capture_group(&caps, 1).trim().parse()?;
+            let y: i32 = capture_group(&caps, 2).trim().parse()?;
             Ok(point(x, y))
         }
     }

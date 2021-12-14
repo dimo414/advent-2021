@@ -1,11 +1,14 @@
-#![allow(dead_code, unused_macros)] // TODO remove
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::collections::HashMap;
+use std::sync::Mutex;
 
 #[macro_export]
 macro_rules! interactive {
     () => {
         cfg!(feature = "interactive") || cfg!(debug_assertions) && !cfg!(test)
-    };
+    }
 }
+pub use interactive;
 
 #[cfg(feature="timing")]
 #[macro_export]
@@ -17,7 +20,7 @@ macro_rules! elapsed {
         let ret = $expression;
         println!("\u{001B}[36mElapsed: {:?}]\u{001B}[0m", start.elapsed());
         ret
-    } };
+    } }
 }
 #[cfg(not(feature="timing"))]
 #[macro_export]
@@ -25,10 +28,7 @@ macro_rules! elapsed {
     ($expression:expr) => { $expression };
     ($desc:expr, $expression:expr) => { $expression };
 }
-
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::collections::HashMap;
-use std::sync::Mutex;
+pub use elapsed;
 
 static RESET_LINES: AtomicUsize = AtomicUsize::new(0);
 

@@ -1,8 +1,7 @@
 use std::collections::BTreeMap;
 use std::fmt::Write;
 use anyhow::Result;
-use advent_2021::console::Console;
-use advent_2021::elapsed;
+use advent_2021::console::{Console,elapsed};
 
 fn main() -> Result<()> {
     let _console = Console::init();

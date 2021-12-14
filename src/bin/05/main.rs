@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use anyhow::Result;
 
-use advent_2021::parsing::*;
+use advent_2021::parsing::{static_regex,capture_group,regex_captures};
 use advent_2021::euclid::{Point, vector};
 
 fn main() -> Result<()> {
