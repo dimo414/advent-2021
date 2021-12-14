@@ -1,5 +1,5 @@
 use std::collections::{HashMap, HashSet};
-use std::fmt::{Debug, Display, Write};
+use std::fmt::{Debug, Display};
 use std::str::FromStr;
 use std::time::Duration;
 use anyhow::{anyhow,Error,Result};
@@ -124,36 +124,25 @@ impl Display for Octopi {
         // well with the existing colorizing behavior of Console (it uses a solid block symbol for
         // char that gets colored). So for posterity here's digits as braille, 1-8:
         // ⡀ ⣀ ⣄ ⣤ ⣦ ⣶ ⣷ ⣿
-        fn render_digit(d: u32) -> char {
+        fn render_digit(d: Option<&u32>) -> String {
             match d {
-                1..=9 => char::from_digit(d, 10).expect("valid digit"),
-                0|10..=18 => '0',
-                _ => panic!("Unexpected number {}", d),
-            }
+                Some(d@1..=9) => char::from_digit(*d, 10).expect("valid digit"),
+                Some(0|10..=18) => '0',
+                Some(d) => panic!("Unexpected number {}", d),
+                None => ' ',
+            }.to_string()
         }
 
-        let mut out = String::new();
-        for row in Point::display_order(self.grid.keys()).expect("empty grid") {
-            for p in row {
-                out.push(render_digit(self.grid[&p]));
-            }
-            out.push('\n');
-        }
-        write!(f, "{}", out)
+        write!(f, "{}", Point::display_point_map(&self.grid, render_digit))
     }
 }
 
 impl Debug for Octopi {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let mut out = String::new();
-        for row in Point::display_order(self.grid.keys()).expect("empty grid") {
-            for p in row {
-                write!(out, "{:2}", self.grid[&p])?;
-            }
-            out.push('\n');
-        }
-        write!(f, "Generation: {}\n{}", self.generation, out)
+        write!(f, "Generation: {}\n{}", self.generation,
+               Point::display_point_map(&self.grid, |v|
+                   v.map(|v| format!("{:2}", v)).unwrap_or_else(|| "  ".into())))
     }
 }
 

@@ -2,8 +2,10 @@
 // Other resources:
 //   https://crates.io/crates/euclid - https://doc.servo.org/src/euclid/point.rs.html
 mod point {
+    use std::collections::{HashMap, HashSet};
     use super::*;
     use std::fmt;
+    use std::fmt::Write;
     use std::ops::{Add,AddAssign,Sub};
     use std::str::FromStr;
     use anyhow::{Error, Result};
@@ -43,6 +45,39 @@ mod point {
                     .map(move |y| (min.x..max.x + 1).map(move |x| point(x, y))));
             }
             None
+        }
+
+        pub fn display_points<'a>(points: impl IntoIterator<Item = &'a Point>, present: char, absent: char) -> String {
+            let points: HashSet<_> = points.into_iter().cloned().collect();
+            Self::display_point_set(&points, present, absent)
+        }
+
+        pub fn display_point_set(points: &HashSet<Point>, present: char, absent: char) -> String {
+            let mut out = String::new();
+            if points.is_empty() { return out; }
+            for row in Point::display_order(points.iter()).expect("not empty") {
+                for p in row {
+                    if points.contains(&p) {
+                        out.push(present);
+                    } else {
+                        out.push(absent);
+                    }
+                }
+                out.push('\n');
+            }
+            out
+        }
+
+        pub fn display_point_map<V, F: Fn(Option<&V>) -> String>(map: &HashMap<Point, V>, render: F) -> String {
+            let mut out = String::new();
+            if map.is_empty() { return out; }
+            for row in Point::display_order(map.keys()).expect("not empty") {
+                for p in row {
+                    write!(out, "{}", render(map.get(&p))).expect("impossible");
+                }
+                out.push('\n');
+            }
+            out
         }
 
         pub fn in_bounds(&self, min: Point, max: Point) -> bool {
@@ -168,7 +203,25 @@ mod point {
         }
 
         #[test]
-        fn in_bounds_() {
+        fn display_points() {
+            let points = &[point(1,1), point(2,2), point(3,3), point(4,0)];
+            assert_eq!(Point::display_points(points, '#', ' '), "   #\n#   \n #  \n  # \n");
+
+            // Bounding box is _not_ fixed at the origin
+            assert_eq!(Point::display_points(&[point(1,1), point(2,2), point(3,3)], '#', ' '),
+                       Point::display_points(&[point(10,10), point(11,11), point(12,12)], '#', ' '));
+        }
+
+        #[test]
+        fn display_map() {
+            let map: HashMap<Point, char> = [(point(1,1), 'O'), (point(2,2), 'T'), (point(4,4), 'F')].iter().cloned().collect();
+            assert_eq!(
+                Point::display_point_map(&map, |v| v.map(|c| c.to_string()).unwrap_or_else(|| " ".to_string())),
+                "O   \n T  \n    \n   F\n");
+        }
+
+        #[test]
+        fn in_bounds() {
             let zero_zero = point(0, 0);
             let two_two = point(2, 2);
             let five_six = point(5, 6);

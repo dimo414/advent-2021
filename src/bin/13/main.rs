@@ -13,7 +13,7 @@ fn main() -> Result<()> {
     for fold in &folds[1..] {
         points = fold.fold_all(&points);
     }
-    println!("Folded image:\n{}", display(&points));
+    println!("Folded image:\n{}", Point::display_points(&points, '█', ' '));
 
     Ok(())
 }
@@ -54,22 +54,6 @@ fn parse_input(input: &str) -> Result<(HashSet<Point>, Vec<Fold>)> {
     Ok((points, folds))
 }
 
-// TODO move this into euclid
-fn display(points: &HashSet<Point>) -> String {
-    let mut out = String::new();
-    for row in Point::display_order(points.iter()).unwrap() {
-        for p in row {
-            if points.contains(&p) {
-                out.push('█');
-            } else {
-                out.push(' ');
-            }
-        }
-        out.push('\n');
-    }
-    out
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -84,6 +68,6 @@ mod tests {
         for fold in &folds[1..] {
             points = fold.fold_all(&points);
         }
-        assert_eq!(display(&points), "█████\n█   █\n█   █\n█   █\n█████\n");
+        assert_eq!(Point::display_points(&points, '█', ' '), "█████\n█   █\n█   █\n█   █\n█████\n");
     }
 }
