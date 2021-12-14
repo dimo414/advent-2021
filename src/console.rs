@@ -1,5 +1,6 @@
 #![allow(dead_code, unused_macros)] // TODO remove
 
+#[macro_export]
 macro_rules! interactive {
     () => {
         cfg!(feature = "interactive") || cfg!(debug_assertions) && !cfg!(test)
@@ -7,6 +8,7 @@ macro_rules! interactive {
 }
 
 #[cfg(feature="timing")]
+#[macro_export]
 macro_rules! elapsed {
     ($expression:expr) => { elapsed!(stringify!($expression), $expression) };
     ($desc:expr, $expression:expr) => { {
@@ -18,6 +20,7 @@ macro_rules! elapsed {
     } };
 }
 #[cfg(not(feature="timing"))]
+#[macro_export]
 macro_rules! elapsed {
     ($expression:expr) => { $expression };
     ($desc:expr, $expression:expr) => { $expression };
