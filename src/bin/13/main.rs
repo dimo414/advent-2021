@@ -57,18 +57,15 @@ fn parse_input(input: &str) -> Result<(HashSet<Point>, Vec<Fold>)> {
 // TODO move this into euclid
 fn display(points: &HashSet<Point>) -> String {
     let mut out = String::new();
-    let mut last_y = None;
-    for p in Point::display_order_box(points.iter().cloned()).unwrap() {
-        if let Some(last_y) = last_y {
-            if last_y != p.y { out.push('\n'); }
+    for row in Point::display_order(points.iter()).unwrap() {
+        for p in row {
+            if points.contains(&p) {
+                out.push('█');
+            } else {
+                out.push(' ');
+            }
         }
-        if points.contains(&p) {
-            out.push('█');
-        } else {
-            out.push(' ');
-        }
-
-        last_y = Some(p.y);
+        out.push('\n');
     }
     out
 }
@@ -87,6 +84,6 @@ mod tests {
         for fold in &folds[1..] {
             points = fold.fold_all(&points);
         }
-        assert_eq!(display(&points), "█████\n█   █\n█   █\n█   █\n█████");
+        assert_eq!(display(&points), "█████\n█   █\n█   █\n█   █\n█████\n");
     }
 }

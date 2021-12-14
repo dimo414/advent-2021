@@ -28,7 +28,7 @@ mod point {
     impl Point {
         pub const ORIGIN: Point = point(0, 0, 0);
 
-        pub fn bounding_box(points: impl IntoIterator<Item = Point>) -> Option<(Point, Point)> {
+        pub fn bounding_box<'a>(points: impl IntoIterator<Item = &'a Point>) -> Option<(Point, Point)> {
             points.into_iter().fold(None, |r , c|
                 match r {
                     Some((min, max)) => {
@@ -37,7 +37,7 @@ mod point {
                             point(cmp::max(max.x, c.x), cmp::max(max.y, c.y), cmp::max(max.z, c.z))
                         ))
                     },
-                    None => Some((c, c)),
+                    None => Some((*c, *c)),
                 }
             )
         }
@@ -143,7 +143,7 @@ mod point {
         #[test]
         fn bounding() {
             let points = vec!(point(1, 2, 3), point(2, 3, 4), point(0, 5, 3));
-            assert_eq!(Point::bounding_box(points), Some((point(0, 2, 3), point(2, 5, 4))));
+            assert_eq!(Point::bounding_box(&points), Some((point(0, 2, 3), point(2, 5, 4))));
         }
 
         #[test]

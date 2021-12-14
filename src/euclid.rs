@@ -23,7 +23,7 @@ mod point {
     impl Point {
         pub const ORIGIN: Point = point(0, 0);
 
-        pub fn bounding_box(points: impl IntoIterator<Item = Point>) -> Option<(Point, Point)> {
+        pub fn bounding_box<'a>(points: impl IntoIterator<Item = &'a Point>) -> Option<(Point, Point)> {
             points.into_iter().fold(None, |r , c|
                 match r {
                     Some((min, max)) => {
@@ -32,15 +32,15 @@ mod point {
                             point(std::cmp::max(max.x, c.x), std::cmp::max(max.y, c.y))
                         ))
                     },
-                    None => Some((c, c)),
+                    None => Some((*c, *c)),
                 }
             )
         }
 
-        pub fn display_order_box(points: impl IntoIterator<Item = Point>) -> Option<impl Iterator<Item = Point>> {
+        pub fn display_order<'a>(points: impl IntoIterator<Item = &'a Point>) -> Option<impl Iterator<Item = impl Iterator<Item = Point>>> {
             if let Some((min, max)) = Point::bounding_box(points) {
                 return Some((min.y..max.y + 1)
-                    .flat_map(move |y| (min.x..max.x + 1).map(move |x| point(x, y))));
+                    .map(move |y| (min.x..max.x + 1).map(move |x| point(x, y))));
             }
             None
         }
@@ -150,18 +150,20 @@ mod point {
         #[test]
         fn bounding() {
             let points = vec!(point(1, 2), point(2, 3), point(0, 5));
-            assert_eq!(Point::bounding_box(points), Some((point(0, 2), point(2, 5))));
+            assert_eq!(Point::bounding_box(&points), Some((point(0, 2), point(2, 5))));
         }
 
         #[test]
         fn display_bounds() {
             let points = vec!(point(1, 2), point(3, 1), point(0, -1));
-            let display_points: Vec<_> = Point::display_order_box(points).unwrap().collect();
+            let display_points: Vec<Vec<_>> = Point::display_order(&points).unwrap()
+                .map(|row| row.collect())
+                .collect();
             assert_eq!(display_points, vec!(
-                point(0, -1), point(1, -1), point(2, -1), point(3, -1),
-                point(0, 0), point(1, 0), point(2, 0), point(3, 0),
-                point(0, 1), point(1, 1), point(2, 1), point(3, 1),
-                point(0, 2), point(1, 2), point(2, 2), point(3, 2),
+                vec!(point(0, -1), point(1, -1), point(2, -1), point(3, -1)),
+                vec!(point(0, 0), point(1, 0), point(2, 0), point(3, 0)),
+                vec!(point(0, 1), point(1, 1), point(2, 1), point(3, 1)),
+                vec!(point(0, 2), point(1, 2), point(2, 2), point(3, 2)),
             ));
         }
 

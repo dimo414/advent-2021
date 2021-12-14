@@ -133,13 +133,11 @@ impl Display for Octopi {
         }
 
         let mut out = String::new();
-        let mut last_y = None;
-        for p in Point::display_order_box(self.grid.keys().cloned()).expect("empty grid") {
-            if let Some(last_y) = last_y {
-                if last_y != p.y { out.push('\n'); }
+        for row in Point::display_order(self.grid.keys()).expect("empty grid") {
+            for p in row {
+                out.push(render_digit(self.grid[&p]));
             }
-            out.push(render_digit(self.grid[&p]));
-            last_y = Some(p.y);
+            out.push('\n');
         }
         write!(f, "{}", out)
     }
@@ -149,13 +147,11 @@ impl Debug for Octopi {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let mut out = String::new();
-        let mut last_y = None;
-        for p in Point::display_order_box(self.grid.keys().cloned()).expect("empty grid") {
-            if let Some(last_y) = last_y {
-                if last_y != p.y { out.push('\n'); }
+        for row in Point::display_order(self.grid.keys()).expect("empty grid") {
+            for p in row {
+                write!(out, "{:2}", self.grid[&p])?;
             }
-            write!(out, "{:2}", self.grid[&p])?;
-            last_y = Some(p.y);
+            out.push('\n');
         }
         write!(f, "Generation: {}\n{}", self.generation, out)
     }
