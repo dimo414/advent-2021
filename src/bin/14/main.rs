@@ -23,7 +23,7 @@ fn main() -> Result<()> {
 fn to_char_counts(s: &str) -> BTreeMap<char, u64> {
     s.chars()
         .fold(BTreeMap::new(), |mut m, c| {
-            m.entry(c).and_modify(|v| *v += 1).or_insert(1); m
+            *m.entry(c).or_insert(0) += 1; m
         })
 }
 
@@ -38,7 +38,7 @@ fn to_transform_map(transforms: &BTreeMap<String, String>) -> BTreeMap<(char, ch
 fn to_pairs(polymer: &str) -> BTreeMap<(char, char), u64> {
     let polymer: Vec<_> = polymer.chars().collect();
     polymer.windows(2).map(|w| (w[0], w[1])).fold(BTreeMap::new(), |mut m, p| {
-        m.entry(p).and_modify(|v| *v += 1).or_insert(1); m
+        *m.entry(p).or_insert(0) += 1; m
     })
 }
 
@@ -77,10 +77,10 @@ fn emulate_step(polymer: &BTreeMap<(char, char), u64>, transforms: &BTreeMap<(ch
                 let (a, b) = pair;
                 let left = (*a, *transform);
                 let right = (*transform, *b);
-                ret.entry(left).and_modify(|v| *v += count).or_insert(count);
-                ret.entry(right).and_modify(|v| *v += count).or_insert(count);
+                *ret.entry(left).or_insert(0) += count;
+                *ret.entry(right).or_insert(0) += count;
             },
-            None => { ret.entry(*pair).and_modify(|v| *v += count).or_insert(count); },
+            None => { *ret.entry(*pair).or_insert(0) += count; },
         }
     }
 
@@ -95,12 +95,12 @@ fn emulate(initial_polymer: &str, transforms: &BTreeMap<String, String>, iters: 
     }
     let mut char_counts = polymer.iter()
         .fold(BTreeMap::new(), |mut m, ((a, b), c)|{
-            m.entry(*a).and_modify(|v| *v+=*c).or_insert(*c);
-            m.entry(*b).and_modify(|v| *v+=*c).or_insert(*c);
+            *m.entry(*a).or_insert(0) += *c;
+            *m.entry(*b).or_insert(0) += *c;
             m
         });
-    char_counts.entry(initial_polymer.chars().next().unwrap()).and_modify(|v| *v+=1);
-    char_counts.entry(initial_polymer.chars().last().unwrap()).and_modify(|v| *v+=1);
+    *char_counts.get_mut(&initial_polymer.chars().next().unwrap()).unwrap() += 1;
+    *char_counts.get_mut(&initial_polymer.chars().last().unwrap()).unwrap() += 1;
     char_counts.iter().map(|(&k, &v)| (k, v/2)).collect()
 }
 

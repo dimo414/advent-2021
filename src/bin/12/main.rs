@@ -31,7 +31,7 @@ impl SmallCavesVisitLog {
 
 impl VisitLog for SmallCavesVisitLog {
     fn visit(&mut self, node: &Rc<String>) {
-        self.visit_counts.entry(node.clone()).and_modify(|v| *v += 1).or_insert(1);
+        *self.visit_counts.entry(node.clone()).or_insert(0) += 1;
     }
 
     fn visited(&self, node: &Rc<String>) -> bool {
@@ -63,8 +63,8 @@ impl Caves {
         for (source, dest) in edges {
             let source = refs.entry(source).or_insert_with(|| Rc::new(source.to_string())).clone();
             let dest = refs.entry(dest).or_insert_with(|| Rc::new(dest.to_string())).clone();
-            connections.entry(source.clone()).and_modify(|v: &mut Vec<_>| v.push(dest.clone())).or_insert_with(||vec!(dest.clone()));
-            connections.entry(dest.clone()).and_modify(|v: &mut Vec<_>| v.push(source.clone())).or_insert_with(||vec!(source.clone()));
+            connections.entry(source.clone()).or_insert_with(Vec::new).push(dest.clone());
+            connections.entry(dest.clone()).or_insert_with(Vec::new).push(source.clone());
         }
         Caves { connections }
     }
