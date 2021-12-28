@@ -41,8 +41,8 @@ mod point {
 
         pub fn display_order<'a>(points: impl IntoIterator<Item = &'a Point>) -> Option<impl Iterator<Item = impl Iterator<Item = Point>>> {
             if let Some((min, max)) = Point::bounding_box(points) {
-                return Some((min.y..max.y + 1)
-                    .map(move |y| (min.x..max.x + 1).map(move |x| point(x, y))));
+                return Some((min.y..=max.y)
+                    .map(move |y| (min.x..=max.x).map(move |x| point(x, y))));
             }
             None
         }
@@ -77,6 +77,60 @@ mod point {
                 }
                 out.push('\n');
             }
+            out
+        }
+
+        // https://en.wikipedia.org/wiki/Braille_Patterns#Identifying,_naming_and_ordering
+        pub fn points_to_braille<F: Fn(&Point)->bool>(left_corner: Point, contains: F) -> char {
+            let braille_blank = 0x2800;
+            // in bit order from left-to-right, dot 1 is bit 8, dot 8 is bit 1
+            let dots = [
+                vector(1, 3),
+                vector(0, 3),
+                vector(1, 2),
+                vector(1, 1),
+                vector(1, 0),
+                vector(0, 2),
+                vector(0,1),
+                vector(0, 0),
+            ];
+            let mut braille_parts = 0;
+            for dot in dots {
+                braille_parts <<= 1;
+                if contains(&(left_corner + dot)) {
+                    braille_parts |= 1;
+                }
+            }
+            char::from_u32(braille_parts + braille_blank).expect("Valid Braille char")
+        }
+
+        pub fn display_point_set_braille(points: &HashSet<Point>) -> String {
+            let mut out = String::new();
+            out.push_str("\u{001B}[1m");
+            if points.is_empty() { return out; }
+            let (min, max) = Point::bounding_box(points).expect("Non-empty");
+            for y in (min.y..=max.y).step_by(4) {
+                for x in (min.x..=max.x).step_by(2) {
+                    out.push(Point::points_to_braille(point(x, y), |p| points.contains(p)));
+                }
+                out.push('\n');
+            }
+            out.push_str("\u{001B}[0m");
+            out
+        }
+
+        pub fn display_point_map_braille(points: &HashMap<Point, bool>) -> String {
+            let mut out = String::new();
+            out.push_str("\u{001B}[1m");
+            if points.is_empty() { return out; }
+            let (min, max) = Point::bounding_box(points.keys()).expect("Non-empty");
+            for y in (min.y..=max.y).step_by(4) {
+                for x in (min.x..=max.x).step_by(2) {
+                    out.push(Point::points_to_braille(point(x, y), |p| *points.get(p).unwrap_or(&false)));
+                }
+                out.push('\n');
+            }
+            out.push_str("\u{001B}[0m");
             out
         }
 
@@ -218,6 +272,42 @@ mod point {
             assert_eq!(
                 Point::display_point_map(&map, |v| v.map(|c| c.to_string()).unwrap_or_else(|| " ".to_string())),
                 "O   \n T  \n    \n   F\n");
+        }
+
+        #[test]
+        fn braille_chars() {
+            let dots125: HashSet<_> = [point(0, 0), point(0, 1), point(1, 1)].into_iter().collect();
+            assert_eq!(Point::points_to_braille(point(0,0), |p| dots125.contains(p)), '⠓');
+            let dots12378: HashSet<_> = [point(0, 0), point(0, 1), point(0, 2), point(0, 3), point(1, 3)].into_iter().collect();
+            assert_eq!(Point::points_to_braille(point(0,0), |p| dots12378.contains(p)), '⣇');
+
+            let left_corner = point(10, 5);
+            // dots ordered 5, 3, 8, 7, 6, 2, 4, 1
+            let dots =  [
+                (vector(1, 1), '⠐'),
+                (vector(0, 2), '⠔'),
+                (vector(1, 3), '⢔'),
+                (vector(0, 3), '⣔'),
+                (vector(1, 2), '⣴'),
+                (vector(0, 1), '⣶'),
+                (vector(1, 0), '⣾'),
+                (vector(0, 0), '⣿'),
+            ];
+            let mut points = HashSet::new();
+            assert_eq!(Point::points_to_braille(left_corner, |p| points.contains(p)), '\u{2800}');
+            for (dot, c) in dots {
+                points.insert(left_corner + dot);
+                assert_eq!(Point::points_to_braille(left_corner, |p| points.contains(p)), c);
+            }
+        }
+
+        #[test]
+        fn braille_display() {
+            let points: HashSet<_> = [point(1,1), point(2,2), point(3,3), point(4,4), point(5,5), point(0,4)]
+                .into_iter().collect();
+            // ⡈⠢⡀
+            // ⠀⠀⠈
+            assert_eq!(&Point::display_point_set_braille(&points), "\u{1b}[1m⡈⠢⡀\n⠀⠀⠈\n\u{1b}[0m");
         }
 
         #[test]

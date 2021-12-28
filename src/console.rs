@@ -92,7 +92,9 @@ impl Console {
             let lines = str.chars().filter(|&c| c == '\n').count()+1;
             // https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max
             let reset_lines = RESET_LINES.fetch_max(lines, Ordering::SeqCst).max(lines);
-            print!("{}\n\u{001B}[{}A", str, reset_lines);
+            // in case output is shorter than RESET_LINES
+            let bump = (0..(reset_lines-lines)).map(|_| '\n').collect::<String>();
+            print!("{}{}\n\u{001B}[{}A", str, bump, reset_lines);
             std::thread::sleep(delay);
         }
     }
