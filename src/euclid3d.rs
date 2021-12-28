@@ -41,6 +41,13 @@ mod point {
                 }
             )
         }
+
+        pub fn in_bounds(&self, min: Point, max: Point) -> bool {
+            assert!(min.x <= max.x);
+            assert!(min.y <= max.y);
+            assert!(min.z <= max.z);
+            min.x <= self.x && min.y <= self.y && min.z <= self.z && max.x >= self.x && max.y >= self.y && max.z >= self.z
+        }
     }
 
     impl Add<&Vector> for Point {
@@ -144,6 +151,16 @@ mod point {
         fn bounding() {
             let points = vec!(point(1, 2, 3), point(2, 3, 4), point(0, 5, 3));
             assert_eq!(Point::bounding_box(&points), Some((point(0, 2, 3), point(2, 5, 4))));
+        }
+
+        #[test]
+        fn in_bounds() {
+            let zero_zero_zero = point(0, 0, 0);
+            let two_two_two = point(2, 2, 2);
+            let five_six_seven = point(5, 6, 7);
+            assert!(zero_zero_zero.in_bounds(zero_zero_zero, two_two_two));
+            assert!(two_two_two.in_bounds(zero_zero_zero, two_two_two));
+            assert!(!five_six_seven.in_bounds(zero_zero_zero, two_two_two));
         }
 
         #[test]
