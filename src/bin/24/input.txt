@@ -1,0 +1,297 @@
+# Partially worked through the instructions to observe that certain digits
+# (5 is the first, then 7, 9, 10, 12, 13, and 14) are checked against a modulo
+# of z in order to reduce z. All digits are accumulated into z, therefore each
+# of these digits must correctly reduce z, rather than allowing it to continue
+# growing.
+
+# Digit 1
+inp w
+# x = w != 14 (always 1)
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 14
+eql x w
+eql x 0
+# y = 26
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 16
+mul y x
+# z = w+14
+add z y
+
+# Digit 2
+inp w
+# x = z%26
+mul x 0
+add x z
+mod x 26
+div z 1
+# x = w != (x+11) (always 1)
+add x 11
+eql x w
+eql x 0
+# y = 26
+mul y 0
+add y 25
+mul y x
+add y 1
+# z = z*26
+mul z y
+mul y 0
+# y = w+3
+add y w
+add y 3
+mul y x
+# z = z+y
+add z y
+
+# Digit 3
+inp w
+# x = z%26
+mul x 0
+add x z
+mod x 26
+div z 1
+# x = w != (x+12) (always 1)
+add x 12
+eql x w
+eql x 0
+# y = 26
+mul y 0
+add y 25
+mul y x
+add y 1
+# z = z*26
+mul z y
+# y = w+2
+mul y 0
+add y w
+add y 2
+mul y x
+# z = y+z
+add z y
+
+# Digit 4
+inp w
+# x = z%26
+mul x 0
+add x z
+mod x 26
+div z 1
+# x = w != (x+11)
+add x 11
+eql x w
+eql x 0
+# y = 26
+mul y 0
+add y 25
+mul y x
+add y 1
+# z = z*26
+mul z y
+# y = w+7
+mul y 0
+add y w
+add y 7
+mul y x
+# z = y+z
+add z y
+
+# Digit 5
+inp w
+# x = z%26
+mul x 0
+add x z
+mod x 26
+# z = z/26
+div z 26
+# x = w != (x-10)  (range [-10,15])
+add x -10
+eql x w
+eql x 0
+# y = 1 OR 26
+mul y 0
+add y 25
+mul y x
+add y 1
+# z = z OR z*26
+mul z y
+# y = w+13 OR 0
+mul y 0
+add y w
+add y 13
+mul y x
+# z = z+w+13 OR z
+add z y
+
+# Digit 6
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 15
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -14
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 10
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 10
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 11
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -4
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -3
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 5
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 1
+add x 13
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 11
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -3
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 4
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -9
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 4
+mul y x
+add z y
+inp w
+mul x 0
+add x z
+mod x 26
+div z 26
+add x -12
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y 6
+mul y x
+add z y
