@@ -1,13 +1,15 @@
 mod pathfinding {
-    use std::collections::{VecDeque, HashMap, BinaryHeap};
+    use std::collections::{VecDeque, HashMap, BinaryHeap, HashSet};
     use std::cmp::Ordering;
+    use std::fmt::Debug;
+    use std::hash::Hash;
 
     // References:
     // https://www.redblobgames.com/pathfinding/a-star/introduction.html
     // http://theory.stanford.edu/~amitp/GameProgramming/AStarComparison.html
     // https://doc.rust-lang.org/std/collections/binary_heap/
     pub trait Graph {
-        type Node: Clone + std::fmt::Debug + Eq + core::hash::Hash;
+        type Node: Clone + Debug + Eq + Hash;
 
         fn neighbors(&self, source: &Self::Node) -> Vec<Edge<Self::Node>>;
 
@@ -88,6 +90,7 @@ mod pathfinding {
 
         fn dijkstras(&self, start: &Self::Node, mut goal_predicate: impl FnMut(&Self::Node) -> bool) -> Option<Vec<Edge<Self::Node>>> {
             let mut frontier = BinaryHeap::new();
+            let mut visited = HashSet::new();
             let mut costs = HashMap::new();
             let mut routes = HashMap::new();
             let mut goal = None;
@@ -99,6 +102,8 @@ mod pathfinding {
                     goal = Some(current.node.clone());
                     break;
                 }
+                if visited.contains(&current.node) { continue; }
+                visited.insert(current.node.clone());
                 debug_assert_eq!(Some(&current.cost), costs.get(&current.node));
                 for edge in self.neighbors(&current.node) {
                     let next = edge.dest();
@@ -113,12 +118,8 @@ mod pathfinding {
                 }
             }
 
-            if goal.is_none() {
-                return None;
-            }
-
+            let mut current = goal?;
             let mut path = Vec::new();
-            let mut current = goal.unwrap();
             while current != *start {
                 if let Some(next) = routes.get(&current) {
                     path.push(next.clone());
@@ -172,16 +173,66 @@ mod pathfinding {
             }
             paths
         }
+
+        fn a_star(&self, start: &Self::Node, mut goal_predicate: impl FnMut(&Self::Node) -> bool, heuristic: impl Fn(&Self::Node) -> i32) -> Option<Vec<Edge<Self::Node>>> {
+            let mut frontier = BinaryHeap::new();
+            let mut visited = HashSet::new();
+            let mut costs = HashMap::new();
+            let mut est_costs = HashMap::new();
+            let mut routes = HashMap::new();
+            let mut goal = None;
+            let est_start_cost = heuristic(start);
+            costs.insert(start.clone(), 0);
+            est_costs.insert(start.clone(), est_start_cost);
+            frontier.push(State { cost: est_start_cost, node: start.clone() });
+
+            while let Some(current) = frontier.pop() {
+                if goal_predicate(&current.node) {
+                    goal = Some(current.node.clone());
+                    break;
+                }
+
+                if visited.contains(&current.node) { continue; }
+                visited.insert(current.node.clone());
+                debug_assert_eq!(Some(&current.cost), est_costs.get(&current.node));
+                for edge in self.neighbors(&current.node) {
+                    let next = edge.dest();
+                    let next_cost = current.cost + edge.weight();
+
+                    let prior_next_cost = costs.get(next);
+                    if prior_next_cost.is_none() || *prior_next_cost.expect("Not-none") > next_cost {
+                        let next_est_cost = next_cost + heuristic(next);
+                        costs.insert(next.clone(), next_cost);
+                        est_costs.insert(next.clone(), next_est_cost);
+                        frontier.push(State { cost: next_est_cost, node: next.clone() });
+                        routes.insert(next.clone(), edge.clone());
+                    }
+                }
+            }
+
+            let mut current = goal?;
+            let mut path = Vec::new();
+            while current != *start {
+                if let Some(next) = routes.get(&current) {
+                    path.push(next.clone());
+                    current = next.source().clone();
+                } else {
+                    unreachable!();
+                }
+            }
+            path.reverse();
+            Some(path)
+        }
     }
 
     #[derive(Copy, Clone, Debug)]
-    pub struct Edge<N: Clone + std::fmt::Debug> {
+    pub struct Edge<N: Clone + Debug> {
         weight: i32,
         source: N,
         dest: N,
     }
 
-    impl<N: Clone + std::fmt::Debug> Edge<N> {
+    impl<N: Clone + Debug> Edge<N> {
         pub fn new(weight: i32, source: N, dest: N) -> Edge<N> {
             Edge { weight, source, dest }
         }
@@ -192,27 +243,27 @@ mod pathfinding {
     }
 
     #[derive(Copy, Clone, Debug)]
-    struct State<N: Clone + std::fmt::Debug> {
+    struct State<N: Clone + Debug> {
         cost: i32,
         node: N,
     }
 
     // We don't implement Eq because it's not well defined, but Ord requires it exist
-    impl<N: Clone + std::fmt::Debug> PartialEq for State<N> {
+    impl<N: Clone + Debug> PartialEq for State<N> {
         fn eq(&self, _: &Self) -> bool {
             unimplemented!()
         }
     }
 
-    impl<N: Clone + std::fmt::Debug> Eq for State<N> {}
+    impl<N: Clone + Debug> Eq for State<N> {}
 
-    impl<N: Clone + std::fmt::Debug> Ord for State<N> {
+    impl<N: Clone + Debug> Ord for State<N> {
         fn cmp(&self, other: &State<N>) -> Ordering {
             other.cost.cmp(&self.cost)
         }
     }
 
-    impl<N: Clone + std::fmt::Debug> PartialOrd for State<N> {
+    impl<N: Clone + Debug> PartialOrd for State<N> {
         fn partial_cmp(&self, other: &State<N>) -> Option<Ordering> {
             Some(self.cmp(other))
         }
@@ -265,6 +316,11 @@ mod tests {
         assert_eq!(djk_route.len(), 5);
         assert_eq!(djk_route[0].source(), &start);
         assert_eq!(djk_route[djk_route.len()-1].dest(), &goal);
+
+        let as_route = graph.a_star(&start, |n| n == &goal, |n| (goal - *n).grid_len() as i32).unwrap();
+        assert_eq!(as_route.len(), 5);
+        assert_eq!(as_route[0].source(), &start);
+        assert_eq!(as_route[djk_route.len()-1].dest(), &goal);
     }
 
     #[test]
@@ -284,6 +340,11 @@ mod tests {
         assert_eq!(djk_route.len(), 9);
         assert_eq!(djk_route[0].source(), &start);
         assert_eq!(djk_route[djk_route.len()-1].dest(), &goal);
+
+        let as_route = graph.a_star(&start, |n| n == &goal, |n| (goal - *n).grid_len() as i32).unwrap();
+        assert_eq!(as_route.len(), 9);
+        assert_eq!(as_route[0].source(), &start);
+        assert_eq!(as_route[djk_route.len()-1].dest(), &goal);
     }
 
     #[test]
