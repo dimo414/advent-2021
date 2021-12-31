@@ -56,7 +56,7 @@ impl Graph for Cave {
         Vector::CARDINAL.iter()
             .map(|v| source + v)
             .filter_map(|p| self.risk(p).map(|r| (p, r)))
-            .map(|(d, r)| Edge::new(r, source.clone(), d))
+            .map(|(d, r)| Edge::new(r, *source, d))
             .collect()
     }
 }

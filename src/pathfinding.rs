@@ -1,4 +1,4 @@
-mod pathfinding {
+mod internal {
     use std::collections::{VecDeque, HashMap, BinaryHeap, HashSet};
     use std::cmp::Ordering;
     use std::fmt::Debug;
@@ -71,10 +71,8 @@ mod pathfinding {
                 }
             }
 
-            if goal.is_none() { return None; }
-
+            let mut current = goal?;
             let mut path = Vec::new();
-            let mut current = goal.unwrap();
             while current != *start {
                 if let Some(next) = routes.get(&current) {
                     path.push(current);
@@ -109,7 +107,7 @@ mod pathfinding {
                     let next = edge.dest();
                     let next_cost = current.cost + edge.weight();
 
-                    let prior_next_cost = costs.get(&next);
+                    let prior_next_cost = costs.get(next);
                     if prior_next_cost.is_none() || *prior_next_cost.expect("Not-none") > next_cost {
                         costs.insert(next.clone(), next_cost);
                         frontier.push(State { cost: next_cost, node: next.clone() });
@@ -147,7 +145,7 @@ mod pathfinding {
                     let next = edge.dest();
                     let next_cost = current.cost + edge.weight();
 
-                    let prior_next_cost = costs.get(&next);
+                    let prior_next_cost = costs.get(next);
                     if prior_next_cost.is_none() || *prior_next_cost.expect("Not-none") > next_cost {
                         costs.insert(next.clone(), next_cost);
                         frontier.push(State { cost: next_cost, node: next.clone() });
@@ -269,7 +267,7 @@ mod pathfinding {
         }
     }
 }
-pub use self::pathfinding::{Edge,Graph};
+pub use self::internal::{Edge,Graph};
 
 #[cfg(test)]
 mod tests {

@@ -83,8 +83,7 @@ impl Program {
     // Returns one or more programs, where index 0 is a constant prelude, and each subsequent index
     // begins with an INP command and contains all subsequent commands until the next INP.
     fn split_at_reads(&self) -> Vec<Program> {
-        let mut ret = Vec::new();
-        ret.push(Vec::new());
+        let mut ret = vec![Vec::new()];
 
         for instr in &self.instructions {
             if let Instruction::Inp(_) = instr {

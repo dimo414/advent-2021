@@ -184,7 +184,7 @@ impl FromStr for Num {
 
         let get_num = |i: &mut Option<usize>, j:usize| -> Result<i32> {
             let t = &s[i.expect("start index not set")..j];
-            let d = t.parse::<i32>().context(format!("{}", t))?;
+            let d = t.parse::<i32>().with_context(|| t.to_string())?;
             *i = None;
             Ok(d)
         };
@@ -211,7 +211,7 @@ impl FromStr for Num {
         }
         if let Some(i) = i {
             // If i is still Some the string must be a single N literal, otherwise it won't parse
-            let d = s[i..].parse::<i32>().context(format!("{}", &s[i..]))?;
+            let d = s[i..].parse::<i32>().with_context(|| s[i..].to_string())?;
             parts.push(Part::N(d));
         }
         Num::create(&parts)

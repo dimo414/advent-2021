@@ -137,7 +137,7 @@ impl Burrow {
     fn is_arranged(&self) -> bool {
         self.hallway.iter().all(|c| c.is_none()) &&
             self.rooms.iter().enumerate().all(|(i, r)|
-                r.0.iter().flat_map(|c| c).all(|c| c.home_room_index() == i))
+                r.0.iter().flatten().all(|c| c.home_room_index() == i))
     }
 
     // This _should_ allow a_star() to work, since it certainly under-estimates the real cost,
@@ -145,10 +145,10 @@ impl Burrow {
     #[cfg(any(test,feature="timing"))]
     fn heuristic_distance(&self) -> i32 {
         // 1x energy for every element in the hallway
-        let hallway_cost = self.hallway.iter().flat_map(|c|c).map(|t| t.energy()).sum::<i32>();
+        let hallway_cost = self.hallway.iter().flatten().map(|t| t.energy()).sum::<i32>();
         // 2x energy for every element in the wrong room
         let rooms_cost = self.rooms.iter().enumerate().flat_map(|(i, r)|
-            r.0.iter().flat_map(|c|c)
+            r.0.iter().flatten()
                 .filter(move |t| t.home_room_index() != i)
                 .map(|t| t.energy()*2))
             .sum::<i32>();
@@ -263,7 +263,7 @@ impl std::fmt::Display for Burrow {
             t.map(|t| t.as_char()).unwrap_or('.')
         }
         let room_size = 4; // TODO store this in the Burrow or elsewhere
-        writeln!(f, "{}", std::iter::repeat("#").take(13).collect::<String>())?;
+        writeln!(f, "{}", "#".repeat(13))?;
         writeln!(f, "#{}{}{}#",
                  to_letter(self.hallway[0]),
                  self.hallway[1..6].iter().map(|a|to_letter(*a).to_string()).collect::<Vec<_>>().join("."),
@@ -276,7 +276,7 @@ impl std::fmt::Display for Burrow {
             writeln!(f, "{}#{}#{}", if row==0 {"##"}else{"  "}, row_text, if row==0 {"##"}else{""})?;
         }
 
-        write!(f, "  {}", std::iter::repeat("#").take(9).collect::<String>())?;
+        write!(f, "  {}", "#".repeat(9))?;
         Ok(())
     }
 }

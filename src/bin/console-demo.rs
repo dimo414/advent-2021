@@ -30,7 +30,7 @@ fn main() {
             let mut print = i.to_string();
             print.push('\n');
             for _ in 0..i {
-                print.push_str(&(0..i).map(|_| '.').collect::<String>());
+                print.push_str(&".".repeat(i));
                 print.push('\n');
             }
             Console::interactive_display(print, Duration::from_millis(200));
@@ -43,7 +43,7 @@ fn main() {
             let mut print = i.to_string();
             print.push('\n');
             for _ in 0..i {
-                print.push_str(&(0..i).map(|_| '.').collect::<String>());
+                print.push_str(&".".repeat(i));
                 print.push('\n');
             }
             Console::interactive_display(print, Duration::from_millis(200));

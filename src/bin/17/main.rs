@@ -35,7 +35,7 @@ fn all_trajectories(target: (Point, Point)) -> HashMap<Vector, Vec<Point>> {
     for x in min_x..=max_x {
         for y in min_y..=max_y {
             let v = vector(x, y);
-            if let Attempt::SUCCESS(points) = attempt(v, target) {
+            if let Attempt::Success(points) = attempt(v, target) {
                 ret.insert(v, points);
             }
         }
@@ -45,7 +45,7 @@ fn all_trajectories(target: (Point, Point)) -> HashMap<Vector, Vec<Point>> {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-enum Attempt { SUCCESS(Vec<Point>), MISS(Vec<Point>), }
+enum Attempt { Success(Vec<Point>), Miss(Vec<Point>), }
 
 fn attempt(velocity: Vector, target: (Point, Point)) -> Attempt {
     let mut probe = Probe::launch(velocity, target);
@@ -54,15 +54,15 @@ fn attempt(velocity: Vector, target: (Point, Point)) -> Attempt {
         let state = probe.step();
         points.push(probe.position);
         match state {
-            State::SUCCESS => { return Attempt::SUCCESS(points); },
-            State::MISS => { return Attempt::MISS(points); },
+            State::Success => { return Attempt::Success(points); },
+            State::Miss => { return Attempt::Miss(points); },
             _ => {},
         }
     }
 }
 
 #[derive(Debug, Eq, PartialEq)]
-enum State { TRAVELING, SUCCESS, MISS, }
+enum State { Traveling, Success, Miss, }
 
 struct Probe {
     position: Point,
@@ -77,14 +77,14 @@ impl Probe {
 
     fn step(&mut self) -> State {
         self.position += self.velocity;
-        self.velocity += vector(-1 * self.velocity.x.signum(), -1);
+        self.velocity += vector(- self.velocity.x.signum(), -1);
         if self.position.in_bounds(self.target.0, self.target.1) {
-            return State::SUCCESS;
+            return State::Success;
         }
         if self.velocity.y <= 0 && self.position.y < self.target.0.y {
-            return State::MISS;
+            return State::Miss;
         }
-        State::TRAVELING
+        State::Traveling
     }
 }
 

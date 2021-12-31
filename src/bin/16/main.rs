@@ -195,9 +195,9 @@ impl FromStr for Bitstream {
                 .and_then(|d| d.try_into().context("Cannot cast to u8")))
             .collect::<Result<_>>()?;
         let digits = digits.chunks(2)
-            .map(|s| match s {
-                &[c1, c2] => c1 << 4 | c2,
-                &[c1] => c1 << 4,
+            .map(|s| match *s {
+                [c1, c2] => c1 << 4 | c2,
+                [c1] => c1 << 4,
                 _ => panic!("impossible"),
             })
             .collect::<Vec<_>>();
