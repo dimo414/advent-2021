@@ -2,7 +2,7 @@ use std::time::Duration;
 use advent_2021::console::Console;
 
 fn main() {
-    let _ = Console::init();
+    let _console = Console::init();
 
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     match args.get(0) {

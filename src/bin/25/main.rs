@@ -6,12 +6,11 @@ use advent_2021::console::Console;
 use advent_2021::euclid::{point, Point, vector};
 
 fn main() -> Result<()> {
-    let _ = Console::init();
+    let _console = Console::init();
     // Kind of pretty, but it generates a lot of flicker. Fixing the coloring to not apply per-char
     // would probably help.
-    //Console::colorize_char('v', Color::YELLOW);
-    //Console::colorize_char('>', Color::GREEN);
-    //Console::colorize_char('.', Color::GREY);
+    // Console::colorize_char('v', advent_2021::console::Color::YELLOW);
+    // Console::colorize_char('>', advent_2021::console::Color::GREEN);
     let mut input: SeaFloor = include_str!("input.txt").parse()?;
     let mut count = 1;
     Console::interactive_display(&input, Duration::from_millis(100));
@@ -87,7 +86,7 @@ impl std::fmt::Display for SeaFloor {
             match v {
                 Some(Cucumber::South) => 'v',
                 Some(Cucumber::East) => '>',
-                None => '.',
+                None => ' ',
             }.into()
         ))
     }

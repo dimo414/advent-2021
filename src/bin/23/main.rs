@@ -1,23 +1,27 @@
 use std::rc::Rc;
 use std::str::FromStr;
+use std::time::Duration;
 use anyhow::{Result, Error, bail};
 
-use advent_2021::console::elapsed;
+use advent_2021::console::{Console, elapsed, interactive};
 use advent_2021::pathfinding::{Graph, Edge};
 
 // Credit to https://github.com/githuib/AdventOfCode/blob/master/year2021/day23/__init__.py for
 // some of the equations used below.
 
 fn main() -> Result<()> {
+    let _console = Console::init();
     let burrow: Burrow = include_str!("input.txt").parse()?;
 
     let djk = elapsed!(burrow.use_dijkstras().unwrap());
+    display_route(&djk);
     let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
     compare_a_star(&burrow, djk_cost);
     println!("Energy required for the initial burrow:  {}", djk_cost);
 
     let burrow: Burrow = unfold_input(include_str!("input.txt")).parse()?;
     let djk = elapsed!(burrow.use_dijkstras().unwrap());
+    display_route(&djk);
     let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
     compare_a_star(&burrow, djk_cost);
     println!("Energy required for the unfolded burrow: {}", djk.iter().map(|e| e.weight()).sum::<i32>());
@@ -25,7 +29,17 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-#[cfg(any(test,feature="timing"))]
+fn display_route(route: &[Edge<Burrow>]) {
+    if interactive!() {
+        Console::interactive_display(route[0].source(), Duration::from_millis(500));
+        for edge in route {
+            Console::interactive_display(edge.dest(), Duration::from_millis(500));
+        }
+        Console::clear_interactive();
+    }
+}
+
+#[cfg(feature="timing")]
 fn compare_a_star(burrow: &Burrow, djk_cost: i32) {
     let ast = elapsed!(burrow.use_a_star(|_| 0).unwrap());
     let ast_cost = ast.iter().map(|e| e.weight()).sum::<i32>();
@@ -35,7 +49,7 @@ fn compare_a_star(burrow: &Burrow, djk_cost: i32) {
     let ast_cost = ast.iter().map(|e| e.weight()).sum::<i32>();
     assert_eq!(djk_cost, ast_cost, "A* found a different cost than Dijkstras!");
 }
-#[cfg(not(any(test,feature="timing")))] #[inline]
+#[cfg(not(feature="timing"))] #[inline]
 fn compare_a_star(_: &Burrow, _: i32) {}
 
 fn unfold_input(input: &str) -> String {
@@ -127,11 +141,12 @@ impl Room {
 struct Burrow {
     hallway: [Option<Type>; 7],
     rooms: [Room; 4],
+    room_size: u8,
 }
 
 impl Burrow {
-    fn create(rooms: [Room; 4]) -> Burrow {
-        Burrow { hallway: [None; 7], rooms, }
+    fn create(rooms: [Room; 4], room_size: u8) -> Burrow {
+        Burrow { hallway: [None; 7], rooms, room_size, }
     }
 
     fn is_arranged(&self) -> bool {
@@ -253,7 +268,7 @@ impl FromStr for Burrow {
                 };
             }
         }
-        Ok(Burrow::create(rooms))
+        Ok(Burrow::create(rooms, lines.len() as u8 - 3))
     }
 }
 
@@ -262,14 +277,12 @@ impl std::fmt::Display for Burrow {
         fn to_letter(t: Option<Type>) -> char {
             t.map(|t| t.as_char()).unwrap_or('.')
         }
-        let room_size = 4; // TODO store this in the Burrow or elsewhere
         writeln!(f, "{}", "#".repeat(13))?;
         writeln!(f, "#{}{}{}#",
                  to_letter(self.hallway[0]),
                  self.hallway[1..6].iter().map(|a|to_letter(*a).to_string()).collect::<Vec<_>>().join("."),
                  to_letter(self.hallway[6]))?;
-        for row in 0..room_size {
-            //let rrow = room_size - row - 1;
+        for row in 0..self.room_size as usize {
             let row_text = (0..4)
                 .map(|r| to_letter(*self.rooms[r].0.get(row).unwrap_or(&None)).to_string())
                 .collect::<Vec<_>>().join("#");
@@ -287,7 +300,11 @@ mod tests {
 
     #[test]
     fn display_round_trips() {
-        // TODO assert on a Part 1 example too after fixing the Display impl to show the correct number of rows
+        let a: Burrow = include_str!("example.txt").parse().unwrap();
+        assert_eq!(a.to_string(), include_str!("example.txt"));
+        let b: Burrow = a.to_string().parse().unwrap();
+        assert_eq!(a, b);
+
         let a: Burrow = unfold_input(include_str!("example.txt")).parse().unwrap();
         assert_eq!(a.to_string(), unfold_input(include_str!("example.txt")));
         let b: Burrow = a.to_string().parse().unwrap();
