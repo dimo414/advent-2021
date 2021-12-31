@@ -82,19 +82,71 @@ impl Console {
         }
     }
 
+    fn random_dots() -> String {
+        let mut chars = [' ', '~', '~', '~', '~'];
+        fastrand::shuffle(&mut chars);
+        chars.iter().collect()
+    }
+
+    fn truncate_for_display(str: &mut String) {
+        fn truncate_columns(lines: &[&str], max_width: usize) -> String {
+            let mut dots = Console::random_dots();
+            let mut ret = String::new();
+            for line in lines {
+                if line.chars().count() >= max_width {
+                    let mut line: String = line.chars().take(max_width - 1).collect();
+                    if let Some(dot) = dots.pop() {
+                        line.push(dot);
+                    }
+                    ret.push_str(&line);
+                } else {
+                    ret.push_str(line);
+                }
+                ret.push('\n');
+            }
+            ret
+        }
+
+        if let Some((width, height)) = term_size::dimensions() {
+            // don't bother with oddly-small windows, output's probably already a mess
+            if width < 10 || height < 10 { return; }
+            let height = height-1;
+            let num_lines = str.lines().count();
+            if num_lines > height {
+                let dots = Console::random_dots();
+                let lines: Vec<_> = str.lines().take(height-1).chain(std::iter::once(dots.as_str())).collect();
+                *str = truncate_columns(&lines, width);
+            } else {
+                let naive_width = str.lines().map(|l| l.len()).max().unwrap_or(0);
+                debug_assert!(naive_width >= str.lines().map(|l| l.chars().count()).max().unwrap_or(0));
+                if naive_width > width {
+                    *str = truncate_columns(&str.lines().collect::<Vec<_>>(), width);
+                }
+            }
+        }
+    }
+
+    pub fn min_interactive_lines(lines: usize) {
+        RESET_LINES.fetch_max(lines, Ordering::SeqCst);
+    }
+
     pub fn interactive_display(lazy: impl ToString, delay: std::time::Duration) {
         if interactive!() {
             let transforms = TRANSFORMS.lock().unwrap();
             let mut str = lazy.to_string();
+            if !str.ends_with('\n') {
+                str.push('\n');
+            }
+            Console::truncate_for_display(&mut str); // Do this before color transformations
             if !transforms.is_empty() {
                 str = str.chars().map(|c| transforms.get(&c).unwrap_or(&c.to_string()).clone()).collect::<Vec<_>>().concat();
             }
-            let lines = str.chars().filter(|&c| c == '\n').count()+1;
+            let lines = str.lines().count();
             // https://doc.rust-lang.org/std/sync/atomic/struct.AtomicUsize.html#method.fetch_max
             let reset_lines = RESET_LINES.fetch_max(lines, Ordering::SeqCst).max(lines);
             // in case output is shorter than RESET_LINES
-            let bump = (0..(reset_lines-lines)).map(|_| '\n').collect::<String>();
-            print!("{}{}\n\u{001B}[{}A", str, bump, reset_lines);
+            let bump = (lines..reset_lines).map(|_| '\n').collect::<String>();
+            print!("\u{001B}[J{}{}\u{001B}[{}A\u{001B}[G", str, bump, reset_lines);
             std::thread::sleep(delay);
         }
     }

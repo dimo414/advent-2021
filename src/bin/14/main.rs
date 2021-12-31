@@ -1,10 +1,9 @@
 use std::collections::BTreeMap;
 use std::fmt::Write;
 use anyhow::Result;
-use advent_2021::console::{Console,elapsed};
+use advent_2021::console::elapsed;
 
 fn main() -> Result<()> {
-    let _console = Console::init();
     let (polymer, transforms) = parse_input(include_str!("example.txt"));
 
     let char_counts = elapsed!(simulate(&polymer, &transforms, 10));

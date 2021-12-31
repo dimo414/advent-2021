@@ -14,7 +14,7 @@ fn main() -> Result<()> {
         // https://old.reddit.com/r/adventofcode/comments/rkvfov/2021_day_20_an_image_enhancement_algorithm_that/
         let (algorithm, mut image) = parse_input(include_str!("conway.txt"))?;
 
-        Console::interactive_display((0..10).map(|_| '\n').collect::<String>(), Duration::from_millis(0));
+        Console::min_interactive_lines(10);
         for _ in 0..300 {
             image = image.enhance(&algorithm);
             Console::interactive_display(&image, Duration::from_millis(75));
