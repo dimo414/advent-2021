@@ -2,20 +2,16 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::time::Duration;
 use anyhow::{anyhow, bail, Error, Result};
-use advent_2021::console::Console;
+use advent_2021::console::{Color, Console, ConsoleImage, ToConsoleImage};
 use advent_2021::euclid::{point, Point, vector};
 
 fn main() -> Result<()> {
     let _console = Console::init();
-    // Kind of pretty, but it generates a lot of flicker. Fixing the coloring to not apply per-char
-    // would probably help.
-    // Console::colorize_char('v', advent_2021::console::Color::YELLOW);
-    // Console::colorize_char('>', advent_2021::console::Color::GREEN);
     let mut input: SeaFloor = include_str!("input.txt").parse()?;
     let mut count = 1;
-    Console::interactive_display(&input, Duration::from_millis(100));
+    Console::interactive_render(&input, Duration::from_millis(100));
     while input.advance() {
-        Console::interactive_display(&input, Duration::from_millis(25));
+        Console::interactive_render(&input, Duration::from_millis(10));
         count += 1;
     }
     Console::clear_interactive();
@@ -89,6 +85,27 @@ impl std::fmt::Display for SeaFloor {
                 None => ' ',
             }.into()
         ))
+    }
+}
+
+impl ToConsoleImage for SeaFloor {
+    fn render(&self) -> ConsoleImage {
+        if let Some((min, max)) = Point::bounding_box(self.cucumbers.keys()) {
+            let width = (max.x-min.x+1) as usize;
+            let mut pixels = Vec::with_capacity(width*(max.y-min.y+1) as usize);
+            for y in min.y..=max.y {
+                for x in min.x..=max.x {
+                    let color = match self.cucumbers.get(&point(x, y)) {
+                        Some(Cucumber::South) => Color::GREEN,
+                        Some(Cucumber::East) => Color::YELLOW,
+                        None => Color::BLACK,
+                    };
+                    pixels.push(color);
+                }
+            }
+            return ConsoleImage{ pixels, width, }
+        }
+        ConsoleImage{ pixels: vec![Color::RED,Color::WHITE,Color::RED,Color::WHITE,], width:2, }
     }
 }
 
