@@ -2,7 +2,7 @@ use anyhow::{anyhow, bail, Context, ensure, Error, Result};
 
 use std::collections::{HashMap, VecDeque};
 use std::str::FromStr;
-use advent_2021::console::interactive;
+use advent_2021::terminal::Terminal;
 
 fn main() -> Result<()> {
     let program: Program = include_str!("input.txt").parse()?;
@@ -197,7 +197,7 @@ fn explore_program(program: &Program) -> Result<HashMap<LogicUnit, (u64, u64)>> 
             }
         }
         unique_states = next_states;
-        if interactive!() {
+        if Terminal::active() {
             println!("Unique States: {}", unique_states.len());
         }
     }

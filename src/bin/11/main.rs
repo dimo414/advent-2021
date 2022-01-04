@@ -4,37 +4,31 @@ use std::str::FromStr;
 use std::time::Duration;
 use anyhow::{anyhow,Error,Result};
 use advent_2021::euclid::{point, Point, Vector};
-use advent_2021::console::{Color,Console};
+use advent_2021::terminal::{Color, Terminal, TerminalImage, TerminalRender};
 
 fn main() -> Result<()> {
-    let _console = Console::init();
-    Console::colorize_char('0', Color::WHITE);
-    for i in 1..=9 {
-        // divide by 12 instead of 10 to make the white "blink" more distinct
-        Console::colorize_char(char::from_digit(i, 10).unwrap(), Color::GREYSCALE(i as f32 / 12.0));
-    }
-
+    let _drop = Terminal::init();
     let mut octopi: Octopi = include_str!("input.txt").parse()?;
 
     let mut blinks = 0;
     for _ in 0..100 {
         octopi.half_step();
-        Console::interactive_display(&octopi, Duration::from_millis(75));
+        Terminal::interactive_render(&octopi, Duration::from_millis(75));
         blinks += octopi.step();
-        Console::interactive_display(&octopi, Duration::from_millis(150));
+        Terminal::interactive_render(&octopi, Duration::from_millis(150));
     }
-    Console::clear_interactive();
+    Terminal::end_interactive();
     println!("Blinks after 100 generations: {}", blinks);
 
     let mut first_all_blink = None;
     for _ in 101..500 {
         let blinks = octopi.step();
-        Console::interactive_display(&octopi, Duration::from_millis(75));
+        Terminal::interactive_render(&octopi, Duration::from_millis(75));
         if blinks == 100 && first_all_blink.is_none() {
             first_all_blink = Some(octopi.generation);
         }
     }
-    Console::clear_interactive();
+    Terminal::clear_interactive();
     println!("All blinked at generation:    {}", first_all_blink.expect("Insufficient generations"));
 
     Ok(())
@@ -117,12 +111,32 @@ impl FromStr for Octopi {
     }
 }
 
+impl TerminalRender for Octopi {
+    fn render(&self) -> TerminalImage {
+        fn to_color(digit: u32) -> Color {
+            match digit {
+                // during a half-step a cell can be over-energized
+                0|10..=18 => Color::WHITE,
+                // divide by 12 instead of 10 to make the white "blink" more distinct
+                1..=9 => Color::GREYSCALE(digit as f32 / 12.0),
+                _ => panic!("Unexpected 'digit': {}", digit),
+            }
+        }
+
+        let (min, max) = Point::bounding_box(self.grid.keys()).expect("not empty");
+        let pixels =
+            (min.y..=max.y).flat_map(move |y|
+                (min.x..=max.x).map(move |x| to_color(self.grid[&point(x, y)]))).collect();
+        TerminalImage{ pixels, width: (max.x-min.x+1) as usize, }
+    }
+}
+
 impl Display for Octopi {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        // I also tried using braille to visualize the counts, which looked nice but doesn't work
-        // well with the existing colorizing behavior of Console (it uses a solid block symbol for
-        // char that gets colored). So for posterity here's digits as braille, 1-8:
+        // I also tried using braille to visualize the counts, which looked nice but didn't work
+        // well with the colorizing behavior of Console at the time (it replaced any char that gets
+        // colored with a solid block symbol). So for posterity here's digits as braille, 1-8:
         // ⡀ ⣀ ⣄ ⣤ ⣦ ⣶ ⣷ ⣿
         fn render_digit(d: Option<&u32>) -> String {
             match d {

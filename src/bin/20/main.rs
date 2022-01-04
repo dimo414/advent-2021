@@ -4,39 +4,36 @@ use advent_2021::euclid::{point,Point,vector};
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::fmt::Display;
-use advent_2021::console::Console;
 use std::time::Duration;
+use advent_2021::terminal::{Color, Terminal, TerminalImage, TerminalRender};
 
 fn main() -> Result<()> {
-    let _console = Console::init();
+    let _drop = Terminal::init();
     if std::env::args().len() > 1 {
         // https://old.reddit.com/r/adventofcode/comments/rkgmx9/2021_day_20_images_come_to_life/
         // https://old.reddit.com/r/adventofcode/comments/rkvfov/2021_day_20_an_image_enhancement_algorithm_that/
         let (algorithm, mut image) = parse_input(include_str!("conway.txt"))?;
 
-        Console::min_interactive_lines(10);
         for _ in 0..300 {
             image = image.enhance(&algorithm);
-            Console::interactive_display(&image, Duration::from_millis(75));
+            Terminal::interactive_render(&image, Duration::from_millis(75));
         }
-        Console::clear_interactive();
 
         return Ok(());
     }
 
     let (algorithm, mut image) = parse_input(include_str!("input.txt"))?;
     image = image.enhance(&algorithm);
-    Console::interactive_display(&image, Duration::from_millis(200));
+    Terminal::interactive_display(&image, Duration::from_millis(200));
     image = image.enhance(&algorithm);
     let after_two = image.lit_pixels()?;
-    Console::interactive_display(&image, Duration::from_millis(200));
+    Terminal::interactive_display(&image, Duration::from_millis(200));
 
 
     for _ in 2..50 {
         image = image.enhance(&algorithm);
-        Console::interactive_display(&image, Duration::from_millis(200));
+        Terminal::interactive_display(&image, Duration::from_millis(200));
     }
-    Console::clear_interactive();
     println!("Lit pixels after two iterations: {}", after_two);
     println!("Lit pixels after 50 iterations: {}", image.lit_pixels()?);
 
@@ -91,6 +88,17 @@ impl Image {
             }
         }
         ret
+    }
+}
+
+impl TerminalRender for Image {
+    fn render(&self) -> TerminalImage {
+        let (min, max) = Point::bounding_box(self.pixels.keys()).expect("not empty");
+        let pixels =
+            (min.y..=max.y).flat_map(move |y|
+                (min.x..=max.x).map(move |x|
+                    if self.pixels[&point(x, y)] { Color::WHITE } else { Color::BLACK })).collect();
+        TerminalImage{ pixels, width: (max.x-min.x+1) as usize, }
     }
 }
 

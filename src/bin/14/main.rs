@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::fmt::Write;
 use anyhow::Result;
-use advent_2021::console::elapsed;
+use advent_2021::terminal::elapsed;
 
 fn main() -> Result<()> {
     let (polymer, transforms) = parse_input(include_str!("example.txt"));

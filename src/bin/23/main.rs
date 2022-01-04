@@ -3,20 +3,21 @@ use std::str::FromStr;
 use std::time::Duration;
 use anyhow::{Result, Error, bail};
 
-use advent_2021::console::{Console, elapsed, interactive};
 use advent_2021::pathfinding::{Graph, Edge};
+use advent_2021::terminal::{elapsed,Terminal};
 
 // Credit to https://github.com/githuib/AdventOfCode/blob/master/year2021/day23/__init__.py for
 // some of the equations used below.
 
 fn main() -> Result<()> {
-    let _console = Console::init();
+    let _drop = Terminal::init();
     let burrow: Burrow = include_str!("input.txt").parse()?;
 
     let djk = elapsed!(burrow.use_dijkstras().unwrap());
     display_route(&djk);
     let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
     compare_a_star(&burrow, djk_cost);
+    Terminal::end_interactive();
     println!("Energy required for the initial burrow:  {}", djk_cost);
 
     let burrow: Burrow = unfold_input(include_str!("input.txt")).parse()?;
@@ -30,12 +31,11 @@ fn main() -> Result<()> {
 }
 
 fn display_route(route: &[Edge<Burrow>]) {
-    if interactive!() {
-        Console::interactive_display(route[0].source(), Duration::from_millis(500));
+    if Terminal::active() {
+        Terminal::interactive_display(route[0].source(), Duration::from_millis(500));
         for edge in route {
-            Console::interactive_display(edge.dest(), Duration::from_millis(500));
+            Terminal::interactive_display(edge.dest(), Duration::from_millis(500));
         }
-        Console::clear_interactive();
     }
 }
 

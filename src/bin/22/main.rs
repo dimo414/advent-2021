@@ -1,11 +1,11 @@
 use anyhow::{Result, Error, bail};
 
 use advent_2021::parsing::*;
-use advent_2021::console::interactive;
 use advent_2021::euclid3d::{Point,point};
 use std::str::FromStr;
 use std::collections::VecDeque;
 use std::cmp;
+use advent_2021::terminal::Terminal;
 
 fn main() -> Result<()> {
     let input = parse_input(include_str!("input.txt"))?;
@@ -16,7 +16,7 @@ fn main() -> Result<()> {
         return Ok(())
     }
 
-    if interactive!() {
+    if Terminal::active() {
         println!("Simulated:           {}", simulate(&constrained));
     }
 

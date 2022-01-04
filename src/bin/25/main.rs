@@ -2,19 +2,18 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::time::Duration;
 use anyhow::{anyhow, bail, Error, Result};
-use advent_2021::console::{Color, Console, ConsoleImage, ToConsoleImage};
 use advent_2021::euclid::{point, Point, vector};
+use advent_2021::terminal::{Color, Terminal, TerminalImage, TerminalRender};
 
 fn main() -> Result<()> {
-    let _console = Console::init();
+    let _drop = Terminal::init();
     let mut input: SeaFloor = include_str!("input.txt").parse()?;
     let mut count = 1;
-    Console::interactive_render(&input, Duration::from_millis(100));
+    Terminal::interactive_render(&input, Duration::from_millis(100));
     while input.advance() {
-        Console::interactive_render(&input, Duration::from_millis(10));
+        Terminal::interactive_render(&input, Duration::from_millis(10));
         count += 1;
     }
-    Console::clear_interactive();
     println!("Stopped after {} iterations", count);
 
     Ok(())
@@ -82,14 +81,14 @@ impl std::fmt::Display for SeaFloor {
             match v {
                 Some(Cucumber::South) => 'v',
                 Some(Cucumber::East) => '>',
-                None => ' ',
+                None => '.',
             }.into()
         ))
     }
 }
 
-impl ToConsoleImage for SeaFloor {
-    fn render(&self) -> ConsoleImage {
+impl TerminalRender for SeaFloor {
+    fn render(&self) -> TerminalImage {
         if let Some((min, max)) = Point::bounding_box(self.cucumbers.keys()) {
             let width = (max.x-min.x+1) as usize;
             let mut pixels = Vec::with_capacity(width*(max.y-min.y+1) as usize);
@@ -103,9 +102,9 @@ impl ToConsoleImage for SeaFloor {
                     pixels.push(color);
                 }
             }
-            return ConsoleImage{ pixels, width, }
+            return TerminalImage{ pixels, width, }
         }
-        ConsoleImage{ pixels: vec![Color::RED,Color::WHITE,Color::RED,Color::WHITE,], width:2, }
+        TerminalImage{ pixels: vec![Color::RED,Color::WHITE,Color::RED,Color::WHITE,], width:2, }
     }
 }
 
