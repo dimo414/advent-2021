@@ -333,7 +333,7 @@ mod tests {
         let burrow: Burrow = include_str!("example.txt").parse().unwrap();
         assert!(burrow.can_move(3, 2));
 
-        let mut burrow = burrow.clone();
+        let mut burrow = burrow;
         let (_, d) = burrow.rooms[3].pop().unwrap();
         let (_, a) = burrow.rooms[3].pop().unwrap();
         let (_, b) = burrow.rooms[0].pop().unwrap();

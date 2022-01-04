@@ -294,14 +294,14 @@ mod tests {
             vec!(vector(0, 1), vector(1, 0), vector(0, -1), vector(-1, 0)).iter()
                 .map(|v| source + v)
                 .filter(|p| !self.blocked.contains(p))
-                .map(|d| Edge::new(1, source.clone(), d.clone()))
+                .map(|d| Edge::new(1, *source, d))
                 .collect()
         }
     }
 
     #[test]
     fn direct() {
-        let graph = BasicGraph::new(&vec!());
+        let graph = BasicGraph::new(&[]);
         let start = point(1, 1);
         let goal = point(3, 4);
 
@@ -323,9 +323,9 @@ mod tests {
 
     #[test]
     fn wall() {
-        let graph = BasicGraph::new(&vec!(
+        let graph = BasicGraph::new(&[
             point(0, 3), point(1, 3), point(2, 3), point(3, 3), point(4, 3)
-        ));
+        ]);
         let start = point(1, 1);
         let goal = point(3, 4);
 
@@ -348,13 +348,13 @@ mod tests {
     #[test]
     fn all_paths() {
         // From 2019 Day 15 pt 2 - forms a small room
-        let graph = BasicGraph::new(&vec!(
+        let graph = BasicGraph::new(&[
             point(1,0), point(2, 0),
             point(0, 1), point(3, 1), point(4, 1),
             point(0, 2), point(2, 2), point(5, 2),
             point(0, 3), point(4, 3),
             point(1, 4), point(2, 4), point(3, 4)
-        ));
+        ]);
         let start = point(2, 3);
         let farthest = point(2, 1);
 
