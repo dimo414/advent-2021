@@ -1,5 +1,37 @@
 # Solutions for Advent of Code 2021
 
+## Visualizations
+
+<!-- TODO 4, 5, 9, 13, 14, 15 -->
+
+### Day 11
+
+<img src="https://user-images.githubusercontent.com/1885701/148042971-1c9c081c-0381-4c9d-8ca5-355d346472c9.png" width="400">
+
+### Day 20
+
+Render the "image" using Braille characters:
+
+<img src="https://user-images.githubusercontent.com/1885701/148043226-b03c532c-db26-4c60-a164-19c984815a4d.png" width="400">
+
+Also can play Conway's Game of Life:
+
+<img src="https://user-images.githubusercontent.com/1885701/148043466-11a9a6b5-feb9-4b3c-ad52-befe4d8ffc8d.png" width="400">
+
+### Day 22
+
+Rendered in [OpenSCAD](https://openscad.org/):
+
+[<img src="https://user-images.githubusercontent.com/1885701/148029743-20ec186a-2b36-42a2-8ac9-8ab82144e521.gif" width="400" >](https://user-images.githubusercontent.com/1885701/148029743-20ec186a-2b36-42a2-8ac9-8ab82144e521.gif)
+
+### Day 23
+
+<img src="https://user-images.githubusercontent.com/1885701/148043778-5880dc16-ced2-4fd2-9ccc-2364653feafa.png">
+
+### Day 25
+
+<img src="https://user-images.githubusercontent.com/1885701/148043942-981af428-3f7c-4e5e-9f4d-dec504a1447b.png" width="400">
+
 ## Timings
 
 |          Day |  Binary Size |      Runtime |     Repeated |
