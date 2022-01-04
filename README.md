@@ -10,15 +10,22 @@
 
 ### Day 14
 
+Displays the first 10 iterations, one or two more iterations starts to overflow
+the terminal.
+
 <img src="https://user-images.githubusercontent.com/1885701/148047821-f26ea3db-71e4-4b94-ba1c-302706267e93.png" width="400">
+
+### Day 15
+
+<img src="https://user-images.githubusercontent.com/1885701/148120540-f7583b65-3585-4f38-bee2-a83f727f6367.png" width="400">
 
 ### Day 20
 
-Render the "image" using Braille characters:
+Render the "image" using Braille characters as dense "pixels":
 
 <img src="https://user-images.githubusercontent.com/1885701/148043226-b03c532c-db26-4c60-a164-19c984815a4d.png" width="400">
 
-Also can play Conway's Game of Life:
+It can also play Conway's Game of Life:
 
 <img src="https://user-images.githubusercontent.com/1885701/148043466-11a9a6b5-feb9-4b3c-ad52-befe4d8ffc8d.png" width="400">
 
