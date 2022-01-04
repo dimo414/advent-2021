@@ -162,9 +162,9 @@ impl std::fmt::Display for TerminalImage {
     }
 }
 
-#[cfg(not(any(feature = "interactive",all(not(test), debug_assertions))))]
+#[cfg(not(feature = "interactive"))]
 pub use self::disabled::*;
-#[cfg(not(any(feature = "interactive",all(not(test), debug_assertions))))]
+#[cfg(not(feature = "interactive"))]
 mod disabled {
     use super::*;
     pub struct Terminal;
@@ -186,9 +186,9 @@ mod disabled {
     }
 }
 
-#[cfg(any(feature = "interactive",all(not(test), debug_assertions)))]
+#[cfg(feature = "interactive")]
 pub use self::real::*;
-#[cfg(any(feature = "interactive",all(not(test), debug_assertions)))]
+#[cfg(feature = "interactive")]
 mod real {
     use std::sync::atomic::{AtomicUsize, Ordering};
     use crate::terminal::TerminalRender;
