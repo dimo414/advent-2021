@@ -1,9 +1,11 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::Write;
+use std::time::Duration;
 use anyhow::Result;
-use advent_2021::terminal::elapsed;
+use advent_2021::terminal::{Color, elapsed, Terminal, TerminalImage, TerminalRender};
 
 fn main() -> Result<()> {
+    let _drop = Terminal::init();
     let (polymer, transforms) = parse_input(include_str!("example.txt"));
 
     let char_counts = elapsed!(simulate(&polymer, &transforms, 10));
@@ -61,10 +63,33 @@ fn simulate_step(polymer: &str, transforms: &BTreeMap<String, String>) -> String
 
 fn simulate(initial_polymer: &str, transforms: &BTreeMap<String, String>, iters: usize) -> BTreeMap<char, u64> {
     let mut polymer = initial_polymer.to_string();
+    Terminal::interactive_render(&VisualizePolymer{ polymer: &polymer, transforms, }, Duration::from_millis(200));
     for _ in 0..iters {
         polymer = simulate_step(&polymer, transforms);
+        Terminal::interactive_render(&VisualizePolymer{ polymer: &polymer, transforms, }, Duration::from_millis(200));
     }
     to_char_counts(&polymer)
+}
+
+struct VisualizePolymer<'a> {
+    polymer: &'a str,
+    transforms: &'a BTreeMap<String, String>,
+}
+
+impl<'a> TerminalRender for VisualizePolymer<'a> {
+    fn render(&self, width_hint: usize, _h: usize) -> TerminalImage {
+        static COLORS: &[Color] = &[Color::GREEN, Color::YELLOW, Color::RED, Color::BLUE, Color::MAGENTA, Color::CYAN, Color::GREY, Color::ORANGE, Color::BROWN, Color::WHITE];
+        // It'd be nice to avoid reconstructing this every time...
+        let elements: BTreeSet<_> = self.transforms.values().collect();
+        let mapping: HashMap<_, _> =
+            elements.iter().enumerate().map(|(i, e)| (e.chars().next().expect("Non-empty"), i)).collect();
+
+        let mut pixels: Vec<_> = self.polymer.chars().map(|c| COLORS[mapping[&c]]).collect();
+        while pixels.len() % width_hint != 0 {
+            pixels.push(Color::BLACK);
+        }
+        TerminalImage{ pixels, width: width_hint, }
+    }
 }
 
 fn emulate_step(polymer: &BTreeMap<(char, char), u64>, transforms: &BTreeMap<(char, char), char>) -> BTreeMap<(char, char), u64>{

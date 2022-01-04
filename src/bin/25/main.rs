@@ -88,7 +88,7 @@ impl std::fmt::Display for SeaFloor {
 }
 
 impl TerminalRender for SeaFloor {
-    fn render(&self) -> TerminalImage {
+    fn render(&self, _w: usize, _h: usize) -> TerminalImage {
         if let Some((min, max)) = Point::bounding_box(self.cucumbers.keys()) {
             let width = (max.x-min.x+1) as usize;
             let mut pixels = Vec::with_capacity(width*(max.y-min.y+1) as usize);

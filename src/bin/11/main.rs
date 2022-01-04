@@ -112,7 +112,7 @@ impl FromStr for Octopi {
 }
 
 impl TerminalRender for Octopi {
-    fn render(&self) -> TerminalImage {
+    fn render(&self, _w: usize, _h: usize) -> TerminalImage {
         fn to_color(digit: u32) -> Color {
             match digit {
                 // during a half-step a cell can be over-energized

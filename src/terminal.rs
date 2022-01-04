@@ -53,6 +53,7 @@ pub enum Color {
 
 impl Color {
     pub const ORANGE: Color = Color::C256(214);
+    pub const BROWN: Color = Color::C256(94);
 
     pub fn bg(&self) -> BgColor { BgColor{ color: *self } }
 }
@@ -106,7 +107,7 @@ impl FormattingCode for BgColor {
 }
 
 pub trait TerminalRender {
-    fn render(&self) -> TerminalImage;
+    fn render(&self, width_hint: usize, height_hint: usize) -> TerminalImage;
 }
 
 pub struct TerminalImage {
@@ -281,7 +282,7 @@ mod real {
         pub fn interactive_render(lazy: &impl TerminalRender, delay: std::time::Duration) {
             let (term_width, term_height) = term_size::dimensions().expect("Interactive mode unsupported");
             let print_height = term_height-1; // Leave one line for the cursor
-            let image = lazy.render().truncate(term_width, print_height);
+            let image = lazy.render(term_width, print_height).truncate(term_width, print_height);
             Terminal::interactive_print(image.to_string(), print_height);
             std::thread::sleep(delay);
         }

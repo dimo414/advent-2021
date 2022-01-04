@@ -2,11 +2,15 @@
 
 ## Visualizations
 
-<!-- TODO 4, 5, 9, 13, 14, 15 -->
+<!-- TODO 4, 5, 9, 13, 15 -->
 
 ### Day 11
 
 <img src="https://user-images.githubusercontent.com/1885701/148042971-1c9c081c-0381-4c9d-8ca5-355d346472c9.png" width="400">
+
+### Day 14
+
+<img src="https://user-images.githubusercontent.com/1885701/148047821-f26ea3db-71e4-4b94-ba1c-302706267e93.png" width="400">
 
 ### Day 20
 

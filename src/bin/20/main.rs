@@ -92,7 +92,7 @@ impl Image {
 }
 
 impl TerminalRender for Image {
-    fn render(&self) -> TerminalImage {
+    fn render(&self, _w: usize, _h: usize) -> TerminalImage {
         let (min, max) = Point::bounding_box(self.pixels.keys()).expect("not empty");
         let pixels =
             (min.y..=max.y).flat_map(move |y|

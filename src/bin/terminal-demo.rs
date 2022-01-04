@@ -43,7 +43,7 @@ fn main() {
             offset: usize,
         }
         impl TerminalRender for Rainbow {
-            fn render(&self) -> TerminalImage {
+            fn render(&self, _w: usize, _h: usize) -> TerminalImage {
                 let width = 20;
                 let mut pixels = Vec::new();
                 for i in 0..(width-1) { // Notice the image an odd number of pixels tall
