@@ -13,19 +13,19 @@ fn main() -> Result<()> {
     let _drop = Terminal::init();
     let burrow: Burrow = include_str!("input.txt").parse()?;
 
-    let djk = elapsed!(burrow.use_dijkstras().unwrap());
-    display_route(&djk);
-    let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
-    compare_a_star(&burrow, djk_cost);
+    let route = elapsed!(burrow.use_a_star(|b| b.heuristic_distance()).unwrap());
+    display_route(&route);
+    let cost = route.iter().map(|e| e.weight()).sum::<i32>();
+    compare_algorithms(&burrow, cost);
     Terminal::end_interactive();
-    println!("Energy required for the initial burrow:  {}", djk_cost);
+    println!("Energy required for the initial burrow:  {}", cost);
 
     let burrow: Burrow = unfold_input(include_str!("input.txt")).parse()?;
-    let djk = elapsed!(burrow.use_dijkstras().unwrap());
-    display_route(&djk);
-    let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
-    compare_a_star(&burrow, djk_cost);
-    println!("Energy required for the unfolded burrow: {}", djk.iter().map(|e| e.weight()).sum::<i32>());
+    let route = elapsed!(burrow.use_a_star(|b| b.heuristic_distance()).unwrap());
+    display_route(&route);
+    let cost = route.iter().map(|e| e.weight()).sum::<i32>();
+    compare_algorithms(&burrow, cost);
+    println!("Energy required for the unfolded burrow: {}", cost);
 
     Ok(())
 }
@@ -40,17 +40,17 @@ fn display_route(route: &[Edge<Burrow>]) {
 }
 
 #[cfg(feature="timing")]
-fn compare_a_star(burrow: &Burrow, djk_cost: i32) {
+fn compare_algorithms(burrow: &Burrow, expected_cost: i32) {
     let ast = elapsed!(burrow.use_a_star(|_| 0).unwrap());
     let ast_cost = ast.iter().map(|e| e.weight()).sum::<i32>();
-    assert_eq!(djk_cost, ast_cost, "A* (with no heuristic) found a different cost than Dijkstras!");
+    assert_eq!(ast_cost, expected_cost, "A* (with no heuristic) found a different cost!");
 
-    let ast = elapsed!(burrow.use_a_star(|b| b.heuristic_distance()).unwrap());
-    let ast_cost = ast.iter().map(|e| e.weight()).sum::<i32>();
-    assert_eq!(djk_cost, ast_cost, "A* found a different cost than Dijkstras!");
+    let djk = elapsed!(burrow.use_dijkstras().unwrap());
+    let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
+    assert_eq!(djk_cost, expected_cost, "Dijkstra's found a different cost!");
 }
 #[cfg(not(feature="timing"))] #[inline]
-fn compare_a_star(_: &Burrow, _: i32) {}
+fn compare_algorithms(_: &Burrow, _: i32) {}
 
 fn unfold_input(input: &str) -> String {
     let mut lines: Vec<_> = input.lines().collect();
@@ -155,17 +155,14 @@ impl Burrow {
                 r.0.iter().flatten().all(|c| c.home_room_index() == i))
     }
 
-    // This _should_ allow a_star() to work, since it certainly under-estimates the real cost,
-    // but several variations I've tried find a suboptimal result for either part 1 or part 2.
-    #[cfg(any(test,feature="timing"))]
     fn heuristic_distance(&self) -> i32 {
-        // 1x energy for every element in the hallway
-        let hallway_cost = self.hallway.iter().flatten().map(|t| t.energy()).sum::<i32>();
-        // 2x energy for every element in the wrong room
+        // 2x energy for every element in the hallway
+        let hallway_cost = self.hallway.iter().flatten().map(|t| t.energy()*2).sum::<i32>();
+        // 4x energy for every element in the wrong room
         let rooms_cost = self.rooms.iter().enumerate().flat_map(|(i, r)|
             r.0.iter().flatten()
                 .filter(move |t| t.home_room_index() != i)
-                .map(|t| t.energy()*2))
+                .map(|t| t.energy()*4))
             .sum::<i32>();
         // This fails on part 1, commenting out rooms_cost succeeds on part 1 but fails on part 2
         hallway_cost + rooms_cost
@@ -193,13 +190,13 @@ impl Burrow {
         (hall-room).abs()
     }
 
+    #[cfg(any(test,feature="timing"))]
     fn use_dijkstras(&self) -> Option<Vec<Edge<Burrow>>> {
         self.dijkstras(
             &Rc::new(*self),
             |n| n.is_arranged())
     }
 
-    #[cfg(any(test,feature="timing"))]
     fn use_a_star(&self, heuristic: impl Fn(&Burrow) -> i32) -> Option<Vec<Edge<Burrow>>> {
         self.a_star(
             &Rc::new(*self),
@@ -353,7 +350,6 @@ mod tests {
         assert_eq!(djk_cost, 12521);
     }
 
-    #[ignore] // TODO A* gets the wrong result presently(!!)
     #[test]
     fn example1_a_star() {
         let burrow: Burrow = include_str!("example.txt").parse().unwrap();
@@ -370,10 +366,9 @@ mod tests {
         let djk = burrow.use_dijkstras().unwrap();
         assert_eq!(djk.len(), 28); // I count 24 steps in the example, but the cost is what really matters anyways
         let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
-        assert_eq!(djk_cost, 49936);
+        assert_eq!(djk_cost, 44169);
     }
 
-    #[ignore] // TODO A* gets the wrong result presently(!!)
     #[cfg(not(debug_assertions))] // Pretty slow without --release, and example1 gives reasonable coverage
     #[test]
     fn example2_a_star() {
@@ -381,6 +376,6 @@ mod tests {
         let djk = burrow.use_a_star(|b| b.heuristic_distance()).unwrap();
         assert_eq!(djk.len(), 28); // I count 24 steps in the example, but the cost is what really matters anyways
         let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
-        assert_eq!(djk_cost, 49936);
+        assert_eq!(djk_cost, 44169);
     }
 }

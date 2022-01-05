@@ -179,10 +179,10 @@ mod internal {
             let mut est_costs = HashMap::new();
             let mut routes = HashMap::new();
             let mut goal = None;
-            let est_start_cost = heuristic(start);
-            costs.insert(start.clone(), 0);
-            est_costs.insert(start.clone(), est_start_cost);
-            frontier.push(State { cost: est_start_cost, node: start.clone() });
+            let start_state = EstState { est_cost: heuristic(start), real_cost: 0, node: start.clone() };
+            costs.insert(start.clone(), start_state.real_cost);
+            est_costs.insert(start.clone(), start_state.est_cost);
+            frontier.push(start_state);
 
             while let Some(current) = frontier.pop() {
                 if goal_predicate(&current.node) {
@@ -192,18 +192,19 @@ mod internal {
 
                 if visited.contains(&current.node) { continue; }
                 visited.insert(current.node.clone());
-                debug_assert_eq!(Some(&current.cost), est_costs.get(&current.node));
+                debug_assert_eq!(Some(&current.est_cost), est_costs.get(&current.node));
+                debug_assert_eq!(Some(&current.real_cost), costs.get(&current.node));
                 for edge in self.neighbors(&current.node) {
                     let next = edge.dest();
-                    let next_cost = current.cost + edge.weight();
+                    let next_cost = current.real_cost + edge.weight();
 
                     let prior_next_cost = costs.get(next);
                     if prior_next_cost.is_none() || *prior_next_cost.expect("Not-none") > next_cost {
-                        let next_est_cost = next_cost + heuristic(next);
-                        costs.insert(next.clone(), next_cost);
-                        est_costs.insert(next.clone(), next_est_cost);
-                        frontier.push(State { cost: next_est_cost, node: next.clone() });
-                        routes.insert(next.clone(), edge.clone());
+                        let next_state = EstState { est_cost: next_cost + heuristic(next), real_cost: next_cost, node: next.clone() };
+                        costs.insert(next.clone(), next_state.real_cost);
+                        est_costs.insert(next.clone(), next_state.est_cost);
+                        frontier.push(next_state);
+                        routes.insert(next.clone(), edge);
                     }
                 }
             }
@@ -263,6 +264,34 @@ mod internal {
 
     impl<N: Clone + Debug> PartialOrd for State<N> {
         fn partial_cmp(&self, other: &State<N>) -> Option<Ordering> {
+            Some(self.cmp(other))
+        }
+    }
+
+    #[derive(Copy, Clone, Debug)]
+    struct EstState<N: Clone + Debug> {
+        est_cost: i32,
+        real_cost: i32,
+        node: N,
+    }
+
+    // We don't implement Eq because it's not well defined, but Ord requires it exist
+    impl<N: Clone + Debug> PartialEq for EstState<N> {
+        fn eq(&self, _: &Self) -> bool {
+            unimplemented!()
+        }
+    }
+
+    impl<N: Clone + Debug> Eq for EstState<N> {}
+
+    impl<N: Clone + Debug> Ord for EstState<N> {
+        fn cmp(&self, other: &EstState<N>) -> Ordering {
+            other.est_cost.cmp(&self.est_cost)
+        }
+    }
+
+    impl<N: Clone + Debug> PartialOrd for EstState<N> {
+        fn partial_cmp(&self, other: &EstState<N>) -> Option<Ordering> {
             Some(self.cmp(other))
         }
     }
