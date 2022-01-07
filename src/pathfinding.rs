@@ -9,6 +9,9 @@ mod internal {
     // http://theory.stanford.edu/~amitp/GameProgramming/AStarComparison.html
     // https://doc.rust-lang.org/std/collections/binary_heap/
     pub trait Graph {
+        // TODO at least sometimes the default Hash impl is surprisingly expensive (see Day 23).
+        //    Should benchmark using BTreeMap/Set to see if that's preferable, or look into revising
+        //    the Hash impls of all Nodes.
         type Node: Clone + Debug + Eq + Hash;
 
         fn neighbors(&self, source: &Self::Node) -> Vec<Edge<Self::Node>>;
