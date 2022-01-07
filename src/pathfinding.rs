@@ -1,8 +1,9 @@
 mod internal {
-    use std::collections::{VecDeque, HashMap, BinaryHeap, HashSet};
+    use std::collections::{VecDeque, BinaryHeap};
     use std::cmp::Ordering;
     use std::fmt::Debug;
     use std::hash::Hash;
+    use ahash::{AHashMap, AHashSet};
 
     // References:
     // https://www.redblobgames.com/pathfinding/a-star/introduction.html
@@ -16,10 +17,10 @@ mod internal {
 
         fn neighbors(&self, source: &Self::Node) -> Vec<Edge<Self::Node>>;
 
-        fn bfs_all(&self, start: &Self::Node) -> HashMap<Self::Node, Vec<Self::Node>> {
+        fn bfs_all(&self, start: &Self::Node) -> AHashMap<Self::Node, Vec<Self::Node>> {
             let mut frontier = VecDeque::new();
             frontier.push_back(start.clone());
-            let mut routes = HashMap::new();
+            let mut routes = AHashMap::new();
             routes.insert(start.clone(), start.clone()); // careful, potential infinite loop
 
             while ! frontier.is_empty() {
@@ -34,7 +35,7 @@ mod internal {
                 }
             }
 
-            let mut paths = HashMap::new();
+            let mut paths = AHashMap::new();
             'outer: for goal in routes.keys() {
                 let mut path = Vec::new();
                 let mut current = goal.clone();
@@ -56,7 +57,7 @@ mod internal {
         fn bfs(&self, start: &Self::Node, mut goal_predicate: impl FnMut(&Self::Node) -> bool) -> Option<Vec<Self::Node>> {
             let mut frontier = VecDeque::new();
             frontier.push_back(start.clone());
-            let mut routes = HashMap::new();
+            let mut routes = AHashMap::new();
             let mut goal = None;
 
             while let Some(current) = frontier.pop_front() {
@@ -91,9 +92,9 @@ mod internal {
 
         fn dijkstras(&self, start: &Self::Node, mut goal_predicate: impl FnMut(&Self::Node) -> bool) -> Option<Vec<Edge<Self::Node>>> {
             let mut frontier = BinaryHeap::new();
-            let mut visited = HashSet::new();
-            let mut costs = HashMap::new();
-            let mut routes = HashMap::new();
+            let mut visited = AHashSet::new();
+            let mut costs = AHashMap::new();
+            let mut routes = AHashMap::new();
             let mut goal = None;
             frontier.push(State { cost: 0, node: start.clone() });
             costs.insert(start.clone(), 0);
@@ -133,10 +134,10 @@ mod internal {
             Some(path)
         }
 
-        fn dijkstras_all(&self, start: &Self::Node) -> HashMap<Self::Node, Vec<Edge<Self::Node>>> {
+        fn dijkstras_all(&self, start: &Self::Node) -> AHashMap<Self::Node, Vec<Edge<Self::Node>>> {
             let mut frontier = BinaryHeap::new();
-            let mut costs = HashMap::new();
-            let mut routes = HashMap::new();
+            let mut costs = AHashMap::new();
+            let mut routes = AHashMap::new();
             frontier.push(State { cost: 0, node: start.clone() });
             costs.insert(start.clone(), 0);
             routes.insert(start.clone(),
@@ -157,7 +158,7 @@ mod internal {
                 }
             }
 
-            let mut paths = HashMap::new();
+            let mut paths = AHashMap::new();
             for goal in routes.keys() {
                 let mut path = Vec::new();
                 let mut current = goal.clone();
@@ -177,10 +178,10 @@ mod internal {
 
         fn a_star(&self, start: &Self::Node, mut goal_predicate: impl FnMut(&Self::Node) -> bool, heuristic: impl Fn(&Self::Node) -> i32) -> Option<Vec<Edge<Self::Node>>> {
             let mut frontier = BinaryHeap::new();
-            let mut visited = HashSet::new();
-            let mut costs = HashMap::new();
-            let mut est_costs = HashMap::new();
-            let mut routes = HashMap::new();
+            let mut visited = AHashSet::new();
+            let mut costs = AHashMap::new();
+            let mut est_costs = AHashMap::new();
+            let mut routes = AHashMap::new();
             let mut goal = None;
             let start_state = EstState { est_cost: heuristic(start), real_cost: 0, node: start.clone() };
             costs.insert(start.clone(), start_state.real_cost);
@@ -305,10 +306,11 @@ pub use self::internal::{Edge,Graph};
 mod tests {
     use super::*;
     use crate::euclid::{point,Point,vector};
-    use std::collections::{HashSet, BTreeMap};
+    use std::collections::{BTreeMap};
+    use ahash::AHashSet;
 
     struct BasicGraph {
-        blocked: HashSet<Point>,
+        blocked: AHashSet<Point>,
     }
 
     impl BasicGraph {

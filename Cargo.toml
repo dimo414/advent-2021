@@ -5,6 +5,7 @@ authors = ["Michael Diamond"]
 edition = "2021"
 
 [dependencies]
+ahash = "0.7.6"
 anyhow = "1.0"
 bitmaps = "3.1"
 fastrand = "1.6"
