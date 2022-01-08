@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 fn main() {
     let input = [10, 7];
     let mut board = Board::create(input, 1000);
@@ -23,7 +25,7 @@ fn play_with_fake_die(board: &mut Board) -> (usize, u32) {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 struct Board {
     positions: [u8;2],
     target_score: u32,
@@ -51,25 +53,27 @@ impl Board {
 struct Universes {
     // We could reduce how much we're storing by just storing player positions and scores (and
     // tracking the current player globally) but reusing the Board is convenient.
-    boards: Vec<(Board, u64)>,
+    boards: HashMap<Board, u64>,
     wins: [u64; 2],
 }
 
 impl Universes {
     fn create(players: [u8; 2]) -> Universes {
-        Universes{ boards: vec![(Board::create(players, 21), 1)], wins: [0; 2], }
+        Universes{ boards: [(Board::create(players, 21), 1)].iter().cloned().collect(), wins: [0; 2], }
     }
 
     // 3d3 can roll the values 3-9 with the following frequency: 1,3,6,7,6,3,1 (27 possible rolls)
     fn roll(&mut self) -> bool {
-        let mut next_iter = Vec::new();
+        let mut next_iter = HashMap::new();
         for (board, u_freq) in &self.boards {
             for (roll, r_freq) in [(3,1), (4,3), (5,6), (6,7), (7,6), (8,3), (9,1)] {
                 let mut board = *board;
                 let freq = u_freq * r_freq;
                 match board.turn(roll) {
                     Some(winner) => self.wins[winner] += freq,
-                    None => { next_iter.push((board, freq)); },
+                    None => {
+                        *next_iter.entry(board).or_insert(0) += freq;
+                    },
                 }
             }
         }
