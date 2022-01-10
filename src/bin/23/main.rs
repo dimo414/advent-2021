@@ -258,6 +258,19 @@ impl Graph for Burrow {
     ///   are locked in place.
     fn neighbors(&self, source: &Self::Node) -> Vec<Edge<Self::Node>> {
         let mut ret = Vec::new();
+
+        // Each member in the hallway can go to their home
+        for (h, t) in source.hallway.iter().enumerate().flat_map(|(h,t)| t.map(|t| (h, t))) {
+            let r = t.home_room_index();
+            if source.rooms[r].is_all(t) && source.can_move(r, h) {
+                let mut next = *source;
+                next.hallway[h] = None;
+                let room_steps = next.rooms[r].push(t) + 1;
+                let weight = t.energy() * (source.hallway_distance(r, h) + room_steps);
+                ret.push(Edge::new(weight, *source, next));
+            }
+        }
+
         // First member in each room can leave
         for r in 0..4 {
             let mut next = *source;
@@ -271,18 +284,6 @@ impl Graph for Burrow {
                         ret.push(Edge::new(weight, *source, next));
                     }
                 }
-            }
-        }
-
-        // Each member in the hallway can go to their home
-        for (h, t) in source.hallway.iter().enumerate().flat_map(|(h,t)| t.map(|t| (h, t))) {
-            let r = t.home_room_index();
-            if source.rooms[r].is_all(t) && source.can_move(r, h) {
-                let mut next = *source;
-                next.hallway[h] = None;
-                let room_steps = next.rooms[r].push(t) + 1;
-                let weight = t.energy() * (source.hallway_distance(r, h) + room_steps);
-                ret.push(Edge::new(weight, *source, next));
             }
         }
 
