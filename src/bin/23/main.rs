@@ -46,6 +46,10 @@ fn compare_algorithms(burrow: &Burrow, expected_cost: i32) {
     let ast_cost = ast.iter().map(|e| e.weight()).sum::<i32>();
     assert_eq!(ast_cost, expected_cost, "A* (with no heuristic) found a different cost!");
 
+    let ast = elapsed!(burrow.use_a_star(|b| b.simple_heuristic_distance()).unwrap());
+    let ast_cost = ast.iter().map(|e| e.weight()).sum::<i32>();
+    assert_eq!(ast_cost, expected_cost, "A* (with simple heuristic) found a different cost!");
+
     let djk = elapsed!(burrow.use_dijkstras().unwrap());
     let djk_cost = djk.iter().map(|e| e.weight()).sum::<i32>();
     assert_eq!(djk_cost, expected_cost, "Dijkstra's found a different cost!");
@@ -156,7 +160,8 @@ impl Burrow {
                 r.0.iter().flatten().all(|c| c.home_room_index() == i))
     }
 
-    fn heuristic_distance(&self) -> i32 {
+    #[cfg(feature="timing")]
+    fn simple_heuristic_distance(&self) -> i32 {
         // 2x energy for every element in the hallway
         let hallway_cost = self.hallway.iter().flatten().map(|t| t.energy()*2).sum::<i32>();
         // 4x energy for every element in the wrong room
@@ -165,7 +170,20 @@ impl Burrow {
                 .filter(move |t| t.home_room_index() != i)
                 .map(|t| t.energy()*4))
             .sum::<i32>();
-        // This fails on part 1, commenting out rooms_cost succeeds on part 1 but fails on part 2
+        hallway_cost + rooms_cost
+    }
+
+    fn heuristic_distance(&self) -> i32 {
+        // Distance to home room * energy
+        let hallway_cost = self.hallway.iter().enumerate()
+            .flat_map(|(i, t)| t.map(|v| (i, v)))
+            .map(|(i, t)| self.hallway_distance(t.home_room_index(), i) * t.energy()).sum::<i32>();
+        // Minimum four steps from room to room
+        let rooms_cost = self.rooms.iter().enumerate().flat_map(|(i, r)|
+            r.0.iter().flatten()
+                .filter(move |t| t.home_room_index() != i)
+                .map(|t| 4 * t.energy()))
+            .sum::<i32>();
         hallway_cost + rooms_cost
     }
 
