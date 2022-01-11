@@ -257,9 +257,11 @@ impl Graph for Burrow {
     ///   into a room. Once any amphipod starts moving, any other amphipods currently in the hallway
     ///   are locked in place.
     fn neighbors(&self, source: &Self::Node) -> Vec<Edge<Self::Node>> {
-        let mut ret = Vec::new();
-
-        // Each member in the hallway can go to their home
+        // A member in the hallway that can reach its home can go there.
+        // Although not necessary, this loop short-circuits and returns as soon as any such edge is
+        // found because if a home room is reachable we always want to do that. Collecting these
+        // edges and returning them along with any edges found in the second loop below incurs a
+        // significant performance penalty (~5x slower!).
         for (h, t) in source.hallway.iter().enumerate().flat_map(|(h,t)| t.map(|t| (h, t))) {
             let r = t.home_room_index();
             if source.rooms[r].is_all(t) && source.can_move(r, h) {
@@ -267,11 +269,13 @@ impl Graph for Burrow {
                 next.hallway[h] = None;
                 let room_steps = next.rooms[r].push(t) + 1;
                 let weight = t.energy() * (source.hallway_distance(r, h) + room_steps);
-                ret.push(Edge::new(weight, *source, next));
+                return vec![Edge::new(weight, *source, next)];
             }
         }
 
-        // First member in each room can leave
+        // The top member in each room can leave and go to any free spot in the hallway; this can
+        // introduce as many as 28 edges to consider.
+        let mut ret = Vec::new();
         for r in 0..4 {
             let mut next = *source;
             if let Some((room_steps, t)) = next.rooms[r].pop() {
