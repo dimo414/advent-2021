@@ -56,7 +56,7 @@ impl Board {
     }
 }
 
-fn play(moves: &[u32], boards: &mut Vec<Board>) -> (u32, u32) {
+fn play(moves: &[u32], boards: &mut [Board]) -> (u32, u32) {
     let mut completed = vec!();
     for square in moves {
         for (i, board) in boards.iter_mut().enumerate() {
