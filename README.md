@@ -35,6 +35,10 @@ Rendered in [OpenSCAD](https://openscad.org/):
 
 [<img src="https://user-images.githubusercontent.com/1885701/148029743-20ec186a-2b36-42a2-8ac9-8ab82144e521.gif" width="400" >](https://user-images.githubusercontent.com/1885701/148029743-20ec186a-2b36-42a2-8ac9-8ab82144e521.gif)
 
+And turned into a Christmas ornament!
+
+[<img src="https://user-images.githubusercontent.com/1885701/195950086-8dd78963-4890-46ca-b1f4-e47715c9c043.jpg" width="400" >](https://old.reddit.com/r/adventofcode/comments/s598kw/)
+
 ### Day 23
 
 <img src="https://user-images.githubusercontent.com/1885701/148043778-5880dc16-ced2-4fd2-9ccc-2364653feafa.png">
