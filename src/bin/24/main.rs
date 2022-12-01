@@ -10,6 +10,7 @@ fn main() -> Result<()> {
     if !args.is_empty() {
         args[0].parse::<u64>().with_context(|| format!("Invalid input {:?}", &args[0]))?;
         let mut digits: VecDeque<_> = args[0].chars().map(|d| d.to_digit(10).expect("Impossible")).collect();
+        ensure!(digits.len() == 14, "Input must be a 14 digit number");
         let parts = program.split_at_reads();
         let mut alu = LogicUnit::new();
         alu.execute(&parts[0], &[])?;
