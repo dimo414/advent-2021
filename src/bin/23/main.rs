@@ -341,13 +341,15 @@ mod tests {
 
     #[test]
     fn display_round_trips() {
-        let a: Burrow = include_str!("example.txt").parse().unwrap();
-        assert_eq!(a.to_string(), include_str!("example.txt"));
+        let input = include_str!("example.txt");
+        let a: Burrow = input.parse().unwrap();
+        assert_eq!(a.to_string(), input.trim());
         let b: Burrow = a.to_string().parse().unwrap();
         assert_eq!(a, b);
 
-        let a: Burrow = unfold_input(include_str!("example.txt")).parse().unwrap();
-        assert_eq!(a.to_string(), unfold_input(include_str!("example.txt")));
+        let unfolded = unfold_input(input);
+        let a: Burrow = unfolded.parse().unwrap();
+        assert_eq!(a.to_string(), unfolded.trim());
         let b: Burrow = a.to_string().parse().unwrap();
         assert_eq!(a, b);
     }

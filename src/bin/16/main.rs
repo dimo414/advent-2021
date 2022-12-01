@@ -189,7 +189,7 @@ impl FromStr for Bitstream {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        let digits: Vec<u8> = s.chars()
+        let digits: Vec<u8> = s.trim().chars()
             .map(|c| c.to_digit(16)
                 .ok_or_else(|| anyhow!("Invalid digit: {}", c))
                 .and_then(|d| d.try_into().context("Cannot cast to u8")))

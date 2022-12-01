@@ -34,7 +34,7 @@ fn complex_fuel_cost(positions: &[i32], target: i32) -> i32 {
 }
 
 fn parse_input(input: &str) -> Result<Vec<i32>> {
-    input.split(',').map(|n| n.parse().context(n.to_string())).collect()
+    input.trim().split(',').map(|n| n.parse().context(n.to_string())).collect()
 }
 
 #[cfg(test)]
